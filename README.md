@@ -13,6 +13,9 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 #### WooCommerce
 - [WooCommerce Plugin](https://github.com/MobyPayTech/moby-plugins/tree/main/woocommerce)
 
+#### Shopify
+- [Shopify Plugin](https://apps.shopify.com/moby-checkout)
+
 ## Additional Support
 
 For further assistance, you can reach our support teams:
