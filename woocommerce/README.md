@@ -49,13 +49,14 @@ The `mobypay_response` method in `includes/mobypay-checkout-gateway.php` manages
 - Check the WooCommerce log for any error messages.
 - Verify that your server can receive callbacks from Moby Checkout.
 
-## Support
+## Additional Support
 
-For support, please contact the Moby Checkout support team or refer to the plugin documentation.
+For further assistance, you can reach our support teams:
 
-## Updating the Plugin
+- **Customer Care**:  
+  - Email: [customercare@moby.my](mailto:customercare@moby.my)  
+  - Phone: 011 1111 5155
 
-**Important:** After making any changes to the plugin, remember to update the plugin version number in `mobypay-checkout.php`.
-
-
-This documentation provides a high-level overview of the MobypayCheckoutGateway plugin. For more detailed information on specific methods or features, refer to the inline comments in the source code.
+- **Merchant Support**:  
+  - Email: [merchantsupport@moby.my](mailto:merchantsupport@moby.my)  
+  - Phone: 011 1111 7177
