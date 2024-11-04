@@ -30,11 +30,6 @@ Follow these steps to install the Moby Price Divider plugin on your Shopify stor
 1. Navigate to your store’s frontend and select a product.
 2. Check the product page to ensure that the price divider correctly displays the installment options based on your settings.
 
-## Video Tutorial
-
-For a step-by-step guide on installing the Moby Price Divider plugin, [download the video here](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/shopify/price-divider/installation-guide.mp4).
-
-
 ---
 
 ## Additional Support
