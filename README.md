@@ -14,11 +14,8 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 - [WooCommerce Plugin](https://github.com/MobyPayTech/moby-plugins/tree/main/woocommerce)
 
 #### Shopify
-- [**Installation Guide for Moby Checkout**](shopify/moby-checkout/READEME.md) 
-- [Install Moby Checkout Shopify Plugin](https://apps.shopify.com/moby-checkout) 
-
-- [**Installation Guide for Price Divider**](shopify/price-divider/README.md)  
-- [Install Price Divider Shopify Plugin](https://apps.shopify.com/moby-price-divider)
+- [Install Moby Checkout Shopify Plugin](https://apps.shopify.com/moby-checkout) - [**Need Installation Guide**](shopify/moby-checkout/READEME.md) 
+- [Install Price Divider Shopify Plugin](https://apps.shopify.com/moby-price-divider) - - [**Need Installation Guide**](shopify/price-divider/README.md)  
 
 ## Additional Support
 
