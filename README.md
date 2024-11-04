@@ -5,13 +5,13 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 ### Moby Money Plugins
 
 #### OpenCart
-- [OpenCart Plugin - v1.0](opencart/v1.0/mobypay.ocmod.zip)
-- [OpenCart Plugin - v2.0](opencart/v2.0/mobypay.ocmod.zip)
-- [OpenCart Plugin - v3.0](opencart/v3.0/mobypay.ocmod.zip)
-- [OpenCart Plugin - v4.0](opencart/v4.0/mobypay.ocmod.zip)
+- [OpenCart Plugin - v1.0](https://github.com/MobyPayTech/moby-plugins/tree/main/opencart)
+- [OpenCart Plugin - v2.0](https://github.com/MobyPayTech/moby-plugins/tree/main/opencart)
+- [OpenCart Plugin - v3.0](https://github.com/MobyPayTech/moby-plugins/tree/main/opencart)
+- [OpenCart Plugin - v4.0](https://github.com/MobyPayTech/moby-plugins/tree/main/opencart)
 
 #### WooCommerce
-- [WooCommerce Plugin](woocommerce/moby-checkout.zip)
+- [WooCommerce Plugin](https://github.com/MobyPayTech/moby-plugins/tree/main/woocommerce)
 
 ## Additional Support
 

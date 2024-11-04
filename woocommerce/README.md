@@ -1,5 +1,7 @@
 # MobypayCheckoutGateway WordPress Plugin
 
+[**Download the Latest WooCommerce Plugin Version**](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/moby-checkout.zip)
+
 ## Overview
 
 The MobypayCheckoutGateway plugin integrates Moby Checkout as a payment gateway for WooCommerce. It provides a seamless payment experience for both merchants and customers.

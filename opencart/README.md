@@ -1,5 +1,14 @@
 # Moby Money OpenCart Plugin Installation Guide
 
+# OpenCart Plugin Versions
+
+Below are links to specific versions of the OpenCart plugin. Choose the version that is compatible with your OpenCart installation:
+
+- [**OpenCart Plugin Version 1.0](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/opencart/v1.0/mobypay.ocmod.zip)
+- [**OpenCart Plugin Version 2.0](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/opencart/v2.0/mobypay.ocmod.zip)
+- [**OpenCart Plugin Version 3.0](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/opencart/v3.0/mobypay.ocmod.zip)
+- [**OpenCart Plugin Version 4.0](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/opencart/v4.0/mobypay.ocmod.zip)
+
 Welcome to the Moby Checkout OpenCart Plugin! Follow these simple steps to install and activate the plugin in your OpenCart admin dashboard.
 
 ## Prerequisites
