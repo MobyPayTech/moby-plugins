@@ -4,7 +4,7 @@
 
 Our Price Divider tool is designed to enhance the shopping experience by clearly showing customers how much they will pay when using the Pay Later payment option. This feature helps improve transparency and allows customers to make informed purchasing decisions.
 
-![Price Divider Preview](shopify/price-divider/price-divider.png)
+![Price Divider Preview](https://github.com/MobyPayTech/moby-plugins/blob/2695589df08f31bc8ae582a0f1d51a38c2d06e95/shopify/price-divider/price-divider.png)
 
 ---
 
