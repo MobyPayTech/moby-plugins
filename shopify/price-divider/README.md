@@ -32,7 +32,7 @@ Follow these steps to install the Moby Price Divider plugin on your Shopify stor
 
 ## Video Tutorial
 
-For a step-by-step guide on installing the Moby Price Divider plugin, [download the video here](shopify/price-divider/installation-guide.mp4).
+For a step-by-step guide on installing the Moby Price Divider plugin, [download the video here](https://github.com/MobyPayTech/moby-plugins/blob/f15f0aced0b2019071cfa34ef53842b46048346d/shopify/price-divider/installation-guide.mp4).
 
 
 ---
