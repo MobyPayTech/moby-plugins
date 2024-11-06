@@ -1,10 +1,7 @@
 # Table of Contents
 - [Hosted Payment](#hosted-payment)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Features](#features)
-- [Contributing](#contributing)
-- [License](#license)
+- [Verifying the Signature of Calls](#verifying-the-signature-of-calls)
+- [Handling Notifications](#handling-notifications)
 
 # Hosted Payment
 
