@@ -23,6 +23,12 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 - [Install Moby Checkout Shopify Plugin](https://apps.shopify.com/moby-checkout) or [Go To Installation Guide](shopify/moby-checkout/READEME.md) 
 - [Install Price Divider Shopify Plugin](https://apps.shopify.com/moby-price-divider) or [Go To Installation Guide](shopify/price-divider/README.md)  
 
+### EasyStore Integration
+
+To integrate Moby Checkout with EasyStore, follow our detailed step-by-step guide to set up Moby Checkout as a payment option:
+
+- [View the EasyStore Installation Guide](easy-store/README.md)
+
 ## Additional Support
 
 For further assistance, you can reach our support teams:

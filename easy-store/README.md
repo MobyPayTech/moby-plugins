@@ -2,7 +2,7 @@
 
 Welcome to the Moby Checkout integration guide for EasyStore! This guide provides a step-by-step walkthrough to help you seamlessly add Moby Checkout as a payment option on your EasyStore platform. By integrating Moby Checkout, you’ll offer your customers a secure and convenient payment experience, optimizing their shopping journey and enhancing your store’s payment process.
 
-**1. Navigate to Settings**
+**1. Nevigate to settings from your Shop Admin panel**
    ![Step 1](instruction-1.jpeg)
 
 **2. Select the Payments Option**
