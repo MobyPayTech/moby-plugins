@@ -13,7 +13,8 @@ A Hosted Payment Page is a secure method through which customers can make online
 Welcome to the Quick Start Guide for Moby Hosted Payment! In just a few simple steps, you'll be ready to integrate our payment solutions into your application and offer your customers a seamless payment experience. Let's get started.
 
 ![Moby Hosted Page Workflow](Hosted_Payment_Diagrams.webp)
-Moby Hosted Page Workflow
+
+## Moby Hosted Page Workflow
 
 
 ### Step 1: Retrieve Your Authorization Token

@@ -2,6 +2,12 @@
 
 Moby Money is a leading fintech innovator committed to empowering businesses with reliable, versatile payment solutions. We support merchants across platforms with powerful plugins for Shopify, OpenCart, WooCommerce, and more, enabling seamless integration of our shariah-compliant Buy Now, Pay Later (BNPL) products. These plugins allow businesses to offer flexible, responsible credit options, making it easier to serve customers who may have limited access to traditional financing.
 
+### Moby Checkout Sandbox Test
+- [Sandbox Testing](sandbox-testing/README.md)
+
+### Direct Integration Guide
+- [Direct Integration Guide](direct-integration/README.md)
+
 ### Moby Money Plugins
 
 #### OpenCart
