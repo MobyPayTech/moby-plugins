@@ -47,11 +47,13 @@ The plugin automatically integrates with your WooCommerce store and displays ins
 
 ### Example Display:
 
-- **Shop Page**:  
-  ![Product listing Page](SCR-20241126-pffn.png)
+### 1. Shop Page
 
-- **Single Product Page**:  
-  ![Product listing Page](SCR-20241126-pebe.png)
+![Product listing Page](SCR-20241126-pffn.png)
+
+### 2. Single Product Page
+
+![Product listing Page](SCR-20241126-pebe.png)
 
 ## Requirements
 
