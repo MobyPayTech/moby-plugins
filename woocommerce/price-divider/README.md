@@ -58,6 +58,14 @@ The plugin automatically integrates with your WooCommerce store and displays ins
 
 ![Product listing Page](single.png)
 
+### 3. Moby Details Modal
+
+![Product listing Page](moby_learn_more.png)
+
+### 2. Moby Islamic Details Modal
+
+![Product listing Page](moby_islamic_learn_more.png)
+
 ## Requirements
 
 - WordPress 5.5 or higher.
