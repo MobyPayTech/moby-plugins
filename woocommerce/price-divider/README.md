@@ -31,14 +31,14 @@ The plugin supports customizable installment counts, minimum price thresholds, a
 
     ![Product settings Page](SCR-20241126-psoj.png)
 
-3.  Configure the following options:
+2.  Configure the following options:
 
     - **Minimum Price To Show Price Divider**: Set the minimum product price required to display installment options.
     - **Installment Count**: Specify the number of installment payments.
     - **Platform**: Choose between "Moby" or "Moby Islamic" for platform-specific branding.
     - **Enable Plugin**: Toggle the plugin's functionality on or off.
 
-4.  Save changes.
+3.  Save changes.
 
 ## Usage
 
@@ -52,11 +52,11 @@ The plugin automatically integrates with your WooCommerce store and displays ins
 
 ### 1. Shop Page
 
-![Product listing Page](SCR-20241126-pffn.png)
+![Product listing Page](shop_page.png)
 
 ### 2. Single Product Page
 
-![Product listing Page](SCR-20241126-pebe.png)
+![Product listing Page](single.png)
 
 ## Requirements
 
