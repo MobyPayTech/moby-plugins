@@ -28,6 +28,8 @@ The plugin supports customizable installment counts, minimum price thresholds, a
 ## Configuration
 
 1.  Go to **Settings > Price Divider** in the WordPress admin panel.
+    ![Product settings Page](SCR-20241126-psoj.png)
+
 2.  Configure the following options:
 
     - **Minimum Price To Show Price Divider**: Set the minimum product price required to display installment options.
