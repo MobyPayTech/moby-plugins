@@ -28,16 +28,17 @@ The plugin supports customizable installment counts, minimum price thresholds, a
 ## Configuration
 
 1.  Go to **Settings > Price Divider** in the WordPress admin panel.
+
     ![Product settings Page](SCR-20241126-psoj.png)
 
-2.  Configure the following options:
+3.  Configure the following options:
 
     - **Minimum Price To Show Price Divider**: Set the minimum product price required to display installment options.
     - **Installment Count**: Specify the number of installment payments.
     - **Platform**: Choose between "Moby" or "Moby Islamic" for platform-specific branding.
     - **Enable Plugin**: Toggle the plugin's functionality on or off.
 
-3.  Save changes.
+4.  Save changes.
 
 ## Usage
 
