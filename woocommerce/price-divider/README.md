@@ -1,6 +1,6 @@
 # Price Divider Plugin for WooCommerce
 
-[**Install the Moby Price Divider Plugin**](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/price-divider/moby-price-divider.zip)
+[**Download the Moby Price Divider Plugin**](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/price-divider/moby-price-divider.zip)
 
 ## Description
 
