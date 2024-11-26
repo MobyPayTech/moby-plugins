@@ -85,11 +85,6 @@ The plugin automatically integrates with your WooCommerce store and displays ins
 
     - Check the selected platform in settings.
 
-3.  **Plugin not working after activation**:
-
-    - Ensure proper file permissions are set on your WordPress installation.
-    - phpCopy codedefine('FS_METHOD', 'direct');
-
 ## Changelog
 
 ### Version 1.0.0
