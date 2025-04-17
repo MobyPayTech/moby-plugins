@@ -45,11 +45,13 @@ The `mobypay_response` method in `includes/mobypay-checkout-gateway.php` manages
 - The plugin validates the HMAC signature for both callbacks and redirects to ensure the integrity of the payment data.
 - API credentials are securely stored and used for communication with Moby Checkout.
 
-## Troubleshooting
+## ⚠️ Troubleshooting
 
-- Ensure your Merchant ID and API Key are correct.
-- Check the WooCommerce log for any error messages.
-- Verify that your server can receive callbacks from Moby Checkout.
+- ❗ **Ensure WooCommerce plugin is installed.**
+- ❗ **Ensure currency is set to MYR.**
+- ✅ Ensure your Merchant ID and API Key are correct.
+- ✅ Check the WooCommerce log for any error messages.
+- ✅ Verify that your server can receive callbacks from Moby Checkout.
 
 ## Additional Support
 
