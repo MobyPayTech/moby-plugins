@@ -43,7 +43,8 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 
 #### EasyStore
 
-- [EasyStore Installation Guide](easy-store/README.md)
+- [Moby Checkout EasyStore Installation Guide](easy-store/moby-checkout/README.md)
+- [Price Divider EasyStore Installation Guide](easy-store/price-divider/README.md)
 
 ## Additional Support
 
