@@ -1,307 +1,786 @@
-# Table of Contents
-- [Recurring Payment](#recurring-payment)
-- [Verifying the Signature of Calls](#verifying-the-signature-of-calls)
-- [Handling Notifications](#handling-notifications)
+# MobyPay Recurring API Documentation
 
-# Recurring Payment
+## 📚 Table of Contents
 
-**Recurring payments** in the context of **MobyPay** refer to automatic, pre-authorized payments that are charged to a customer’s stored card on a regular schedule — such as monthly or annually — for ongoing services or products. 
+- [Introduction](#introduction)
+- [Base URLs](#base-urls)
 
-This enables MobyPay merchants to offer seamless subscription-based experiences, while ensuring customers are billed securely and consistently without needing to manually initiate each transaction.
+### 🔗 Web Routes
+- [`GET /mpgs/save-card`](#get-mpgssave-card)
 
-## Quick Start Guide
+### 🔐 API Routes
+- [`POST /api/auth/token`](#post-apiauthtoken)
+- [`GET /api/v2/tokens`](#get-apiv2tokens)
+- [`POST /api/v2/tokens`](#post-apiv2tokens)
+- [`DELETE /api/v2/tokens/{token}`](#delete-apiv2tokens-token)
+- [`POST /tokens/{token}/charges`](#post-tokens-token-charges)
+- [`GET /charges/{merchant_order_reference}`](#get-charges-merchant_order_reference)
+- [`POST /charges/{merchant_order_reference}/refund`](#post-charges-merchant_order_reference-refund)
 
-Welcome to the Quick Start Guide for **MobyPay Recurring Payments**!  
-This guide will walk you through the essential steps to integrate our recurring payment solution into your application.
+- [Error Handling](#error-handling)
+- [Implementation Notes](#implementation-notes)
 
-In just a few minutes, you’ll be ready to offer your customers a secure, seamless, and automated billing experience.
+## 🚀 Introduction
 
-Let’s get started!
+This documentation provides comprehensive information about **MobyPay's** payment processing API.  
+It covers everything from card tokenization and token management to transaction processing and refunds.
 
-## Moby Recurring Page Workflow
+---
 
+## 🌐 Base URLs
 
-### Step 1: Retrieve Your Authorization Token
+All API endpoints must be prefixed with the appropriate base URL depending on the environment:
 
-To begin integrating with MobyPay, first obtain an **authorization token**.  
-This token authenticates your API requests and is valid for a limited time to ensure security.
+| Environment | Base URL                                         |
+|-------------|--------------------------------------------------|
+| Sandbox     | `https://dev-pay-refactor.mobycheckout.com/`    |
+| Production  | `https://pay.mobycheckout.com/`                 |
 
-You'll need to include this token in the `Authorization` header as a Bearer token when making requests to our APIs.
+> **Note:** Always test your integration thoroughly in the **Sandbox** environment before switching to **Production**.
 
-### **How to Retrieve Your Token**
+## 🌐 Web Routes
 
-1. **Make an API Call**  
-   Send a `POST` request to the following endpoint to obtain your authorization token:  
-   **`POST /api/auth/token`**
+### GET `/mpgs/save-card`
 
-   ![Moby Recurring Page Workflow](Hosted_Payment_Diagrams.webp)
+Enables secure card information storage for future transactions via **MPGS (MasterCard Payment Gateway Services)**.
 
-2. **Provide Your Credentials**  
-   In the request body, include your MobyPay `clientID` and `secretKey`. These credentials are issued when you register your account.
+---
 
-3. **Receive Your Token**  
-   A successful response will include an **access token** that you’ll use to authenticate subsequent API requests.  
-   _Note: The token typically expires after 60 minutes._
+#### 🔗 URL
 
-#### Example Request
+`GET /mpgs/save-card`
+
+---
+
+#### 📝 Required Query Parameters
+
+| Parameter        | Description                     |
+|------------------|---------------------------------|
+| `merchantId`     | Merchant's client ID            |
+| `customerName`   | Customer's full name            |
+| `customerEmail`  | Customer's email address        |
+| `customerMobile` | Customer's mobile number        |
+
+---
+
+#### 🧩 Optional Query Parameters
+
+| Parameter   | Description                                               |
+|-------------|-----------------------------------------------------------|
+| `billCode`  | Reference code for billing (if applicable)                |
+| `platform`  | Platform identifier (`moby` by default, or `mobyislamic`) |
+
+---
+
+#### 📥 Response
+
+Returns an **HTML page** with a secure card input form for tokenization.
+
+---
+
+#### 🔍 Example Request URL
+<https://dev-pay-refactor.mobycheckout.com/mpgs/save-card?merchantId=MOBY00000059&customerName=Sohag%20Hasan&customerEmail=sohag@mobypay.my&customerMobile=112211221122>
+
+---
+
+#### ✅ Example Success Redirect URL
+<https://dev-pay-refactor.mobycheckout.com/receipt?merchant=146&bill_code=&platform=moby&retryUrl=&amount=0.00&description=MPGS%20Tokenize%20card%20for%20sohag%40mobypay.my&reference_no=TKN-20250425-680b1f9f569b6&isWebsite=1&moby_trans_id=202504254947338592917&transaction_id=202504254947338592917&status=success&x-trace-id=7d245751-43d8-4ea3-b3ee-d5f1263b8a2a>
+
+---
+
+#### 🧠 Notes
+
+- **No charge** is applied during card tokenization (amount is set to `0.00`).
+- **Tokenized cards** are securely stored and linked to the customer's profile.
+- **UI styling** may vary based on the `platform` query parameter.
+
+---
+
+## 🔐 API Routes
+
+### POST `/api/auth/token`
+
+Authenticates a merchant and generates a bearer token for accessing protected API endpoints.
+
+---
+
+#### 🔗 URL
+
+`POST /api/auth/token`
+
+---
+
+#### 📋 Headers
+
+```http
+Content-Type: application/json
+```
+or
+```http
+Content-Type: multipart/form-data
+```
+
+---
+
+#### 📝 Request Parameters
+
+| Parameter   | Type   | Required | Description                                         |
+|-------------|--------|----------|-----------------------------------------------------|
+| `clientId`  | string | Yes      | Merchant's client ID provided during onboarding     |
+| `secretKey` | string | Yes      | Secret key provided during onboarding               |
+| `scope`     | string | No       | Access scope (default: `'pay'`)                     |
+
+---
+
+#### 📦 Sample Request
+
+```json
+{
+  "clientId": "MOBY00000123",
+  "secretKey": "a2DQqfwUoxf6ZeTDbuki7MNoAp0j2z"
+}
+```
+
+---
+
+#### ✅ Success Response (200 OK)
+
+```json
+{
+    "status": "success",
+    "success": true,
+    "msg": "Authentication success",
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjaWQiOiJNT0JZMDAwMDAwMDMiLCJzayI6ImEyRFFxZndVb3hmNlplVERidWtpN01Ob0FwMGoyeiIsImNBdCI6IjIwMjQtMTAtMDJUMDY6NDQ6MjQuMTI3NTMwWiIsImVBdCI6IjIwMjQtMTAtMDIgMTU6MTQ6MjQifQ.UskpUcFxAAXb9eFvnYmiJc_d-JenUioRQO_NLhsmMco",
+    "expired_at": "2025-04-25 15:14:24",
+    "scope": "pay"
+}
+```
+
+---
+
+#### ❌ Error Response
+
+```json
+{
+    "success": false,
+    "error": "BAD_REQUEST",
+    "msg": "Incorrect credentials!"
+}
+```
+
+---
+
+#### 🧠 Notes
+
+- **Token validity**: 30 minutes (1800 seconds)
+- Include the token in the `Authorization` header as a **Bearer token** for all protected endpoints:
+
+```http
+Authorization: Bearer <token>
+```
+
+- Expired tokens will return 401 Unauthorized responses.
+
+---
+
+### GET `/api/v2/tokens`
+
+Retrieves a paginated list of saved card tokens for a merchant's customers, optionally filtered by customer information.
+
+---
+
+#### 🔗 URL
+
+`GET /api/v2/tokens`
+
+---
+
+#### 📋 Headers
+
+```http
+Authorization: Bearer {api_token}
+Content-Type: application/json
+```
+
+---
+
+#### 📝 Query Parameters
+
+| Parameter | Type   | Required | Description                                        |
+|-----------|--------|----------|----------------------------------------------------|
+| client_id | string | Yes      | Merchant's client ID                               |
+| name      | string | No       | Filter tokens by customer name (partial match)     |
+| email     | string | No       | Filter tokens by customer email (partial match)    |
+| mobile    | string | No       | Filter tokens by customer mobile number (partial match) |
+| page      | int    | No       | Page number for pagination                         |
+| per_page  | int    | No       | Number of results per page                         |
+
+---
+
+#### 📦 Example Request
 
 ```bash
-curl -X POST "[PAYMENT_URL]/api/auth/token" \
-     -H "Content-Type: application/json" \
-     -d '{"clientID": "your_client_id", "secretKey": "your_client_secret"}'
-```
-### Step 2: Tokenize Customer Card
-
-After retrieving your authorization token, the next step is to tokenize your customer's card.  
-This allows you to securely store card details and receive a token that can be used for future payments.
-
----
-
-#### 🔒 Endpoint
-
-**`POST /api/v2/tokens`**
-
----
-
-#### 🛡️ Authentication
-
-Include your **Bearer token** in the request header to authorize the API call:
----
-
-#### 📥 Required Fields
-
-Send the following parameters in your request body:
-
-| Field             | Type   | Description                         |
-|-------------------|--------|-------------------------------------|
-| `client_id`        | string | Your MobyPay client ID              |
-| `customer_email`   | string | Customer's email address (valid)    |
-| `customer_name`    | string | Full name of the customer           |
-| `customer_mobile`  | string | Customer's mobile phone number      |
-
-> All fields are **required** and must not exceed 255 characters.
-
----
-
-#### 📤 Example Request
-
-```bash
-curl -X POST "[PAYMENT_URL]/api/v2/tokens" \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '{
-           "client_id": "your_client_id",
-           "customer_email": "customer@example.com",
-           "customer_name": "John Doe",
-           "customer_mobile": "60123456789"
-         }'
+curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/tokens?client_id=MOBY00000123&email=john@example.com" \
+  -H "Authorization: Bearer {api_token}" \
+  -H "Content-Type: application/json"
 ```
 
-### Response
+---
+
+#### ✅ Success Response (200 OK)
+
+Returns a paginated list of tokens, each with associated customer information.
+
+```json
+{
+    "success": true,
+    "current_page": 1,
+    "per_page": 15,
+    "total": 2,
+    "last_page": 1,
+    "data": [
+        {
+            "provider": null,
+            "type": null,
+            "token": "b1df18d393e0610af46e5b1d7d5be79ccb596c2fe1546facd2723ec6956ad0e9",
+            "firstSix": "512345",
+            "lastFour": "0008",
+            "expiryYearMonth": "0139",
+            "customer": {
+            "name": "John Doe",
+            "email": "john@example.com",
+            "mobile": "60123456789"
+            }
+        },
+        {
+            "provider": "VISA",
+            "type": "DEBIT",
+            "token": "a4cd81fe5729438cb92105e73d9be4f12c596c2fe1546facd2723ec6956ad0e9",
+            "firstSix": "411111",
+            "lastFour": "1234",
+            "expiryYearMonth": "0240",
+            "customer": {
+            "name": "John Doe",
+            "email": "john@example.com",
+            "mobile": "60123456789"
+            }
+        }
+        ]
+}
+```
+
+---
+
+#### ❌ Error Response
+
+```json
+{
+  "success": false,
+  "error": "Invalid client id"
+}
+```
+
+---
+
+#### 🧠 Notes
+
+- A valid Bearer token is required.
+- Requests without proper authentication will return 401 Unauthorized.
+- Requests from unauthorized merchants will return 403 Forbidden.
+
+---
+
+### POST `/api/v2/tokens`
+
+Initiates the process to create a new card token for a customer. Returns a URL where the customer can securely enter their card details.
+
+---
+
+#### 🔗 URL
+
+`POST /api/v2/tokens`
+
+---
+
+#### 📋 Headers
+
+```http
+Authorization: Bearer {api_token}
+Content-Type: application/json
+```
+
+---
+
+#### 📝 Request Body
+
+The request body must include the following fields as defined by `StoreTokenRequest`:
+
+| Parameter         | Type   | Required | Description                           |
+|-------------------|--------|----------|---------------------------------------|
+| client_id         | string | Yes      | Merchant's client ID                  |
+| customer_email    | string | Yes      | Customer's email address              |
+| customer_name     | string | Yes      | Customer's full name                  |
+| customer_mobile   | string | Yes      | Customer's mobile number              |
+
+---
+
+#### 📦 Sample Request
+
+```json
+{
+  "client_id": "MOBY00000123",
+  "customer_email": "john@example.com",
+  "customer_name": "John Doe",
+  "customer_mobile": "60123456789"
+}
+```
+
+---
+
+#### ✅ Success Response (201 Created)
+
+The response includes a `url` field where the customer can enter their card information to complete tokenization.
+
 ```json
 {
   "success": true,
-  "url": "https://..."
+  "url": "https://dev-pay-refactor.mobycheckout.com/mpgs/save-card?merchantId=MOBY00000123&customerName=John%20Doe&customerEmail=john@example.com&customerMobile=60123456789"
 }
 ```
 
-### Step 3: Charge the Stored Token
-
-Once the customer’s card has been tokenized, you can initiate a payment by charging the stored token.  
-MobyPay supports both **3DS-enabled** and **non-3DS** flows depending on your integration and customer preference.
-
 ---
 
-#### 🔒 Endpoint
+#### ❌ Error Response
 
-**`POST /api/v2/tokens/{token}/charges`**
-
-Replace `{token}` with the actual token received during card tokenization.
-
----
-
-#### 🛡️ Authentication
-
-Include your **Bearer token** in the request header:
-
----
-
-#### 📥 Required & Optional Fields
-
-| Field               | Type     | Required | Description                                           |
-|---------------------|----------|----------|-------------------------------------------------------|
-| `amount`            | float    | ✅ Yes   | The amount to be charged (must be >= 0)              |
-| `order_reference`   | string   | ✅ Yes   | Unique reference number for the transaction                |
-| `merchant_reference`| string   | Optional | Optional identifier for internal reference           |
-| `return_url`        | string   | Optional | URL for notification redirect   |
-| `callback_url`      | string   | Optional | URL for notification callback                        |
-| `skip_receipt`      | boolean  | Optional | If true, receipt will not be sent to the customer    |
-| `details`           | string   | Optional | Extra info for the charge                            |
-| `custom_data`       | JSON     | Optional | Any additional structured data                       |
-| `3ds`               | boolean  | ✅ Yes   | Whether to use 3D Secure authentication              |
-
----
-
-#### 📤 Example Request
-
-```bash
-curl -X POST "[PAYMENT_URL]/api/v2/tokens/{token}/charges" \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '{
-           "amount": 100.00,
-           "order_reference": "ORD-123456",
-           "merchant_reference": "INV-7890",
-           "return_url": "https://yourapp.com/return",
-           "callback_url": "https://yourapp.com/callback",
-           "skip_receipt": false,
-           "details": "Monthly Subscription",
-           "custom_data": "{\"user_id\": \"abc123\"}",
-           "3ds": true
-         }'
+```json
+{
+  "success": false,
+  "error": "Invalid customer information"
+}
 ```
-If 3DS is enabled ("3ds": true), you will receive a redirect URL:
+
+---
+
+#### 🧠 Notes
+
+- A valid Bearer token is required.
+- Requests without proper authentication will return 401 Unauthorized.
+- Requests from unauthorized merchants will return 403 Forbidden.
+- The returned `url` should be presented to the customer to complete card entry and tokenization.
+
+---
+
+### DELETE `/api/v2/tokens/{token}`
+
+Deletes a saved card token.
+
+---
+
+#### 🔗 URL
+
+`DELETE /api/v2/tokens/{token}`
+
+---
+
+#### 📋 Headers
+
+```http
+Authorization: Bearer {api_token}
+Content-Type: application/json
+```
+
+---
+
+#### 📝 Request Parameters
+
+| Parameter | Type   | Required | Description                |
+|-----------|--------|----------|----------------------------|
+| token     | string | Yes      | Token identifier to delete |
+
+---
+
+#### ✅ Success Response (200 OK)
+
 ```json
 {
   "success": true,
-  "redirect_url": "https://..."
+  "message": "Token deleted successfully"
 }
 ```
 
-Congratulations! You have now integrated Moby Payments into your application. With these three simple steps, you're ready to offer a seamless and secure payment experience to your customers. But there's more to robust integration than just getting started. To ensure your application is secure and resilient, it's essential to delve into two additional aspects:
+---
 
-[Verifying the Signature of Calls](#verifying-the-signature-of-calls)
+#### ❌ Error Response
 
-[Handling Notifications](#handling-notifications)
-
-
-Getting Your Credentials
-------------------------
-
-### Payment URL
-
-Base on the environment that you are working on, you can use one of the following urls:
-
-```bash
-Sandbox Environment:
-dev.pay.mobycheckout.com
-
-Production Environment
-pay.mobycheckout.com
-```
-
-### Client ID & Secret Key
-
-Upon completion of the onboarding process, you will be provided with a Client ID and Secret Key. Please note that the Client ID is equivalent to your Merchant ID and the Secret Key is equivalent to your API Key.
-
-API Reference
--------------
-
-For a more detailed understanding and complete reference to our API, please visit the link below.
-
-[MobyPay API Reference](https://documenter.getpostman.com/view/32981011/2sA2xnzAvK)
-
-
-# Verifying the Signature of Calls
-
-Security is paramount in payment processing. Verifying the signature of callbacks from Moby Payments ensures that the information received is indeed from Moby Payments and has not been tampered with.
-
-### How to Verify Signatures:
-
-1.  **Receive the Callback**: When Moby Payments sends a callback to your server (e.g., payment status updates), it includes a signature header. This signature allows you to verify the authenticity of the request.
-    
-2.  **Extract the Signature**: The signature is sent in a body of the response named signature. Extract this from the incoming request.
-    
-3.  **Generate Your Signature**: Using the payload of the callback and your secretKet, generate a hash using the same algorithm that Moby Payments uses (e.g., HMAC-SHA256).
-    
-4.  **Compare Signatures**: Compare the signature you generated with the one sent by Moby Payments. If they match, the request is authentic.
-    
-
-Sample Code
-```bash
-const crypto = require('crypto');
-
-/**
- * Generates an HMAC SHA256 signature from given parameters and a secret key.
- * @param {Object} params - The parameters to be signed, as key-value pairs.
- * @param {string} secretKey - The secret key used for signing.
- * @return {string} The generated signature.
- */
-function generateSignature(params, secretKey) {
-    // Sort the parameters by key
-    const sortedKeys = Object.keys(params).sort();
-    let sortedString = '';
-    
-    // Concatenate the sorted parameters into a single string
-    sortedKeys.forEach(key => {
-        sortedString += params[key];
-    });
-    
-    // Generate the HMAC SHA256 hash of the concatenated string using the secret key
-    const signature = crypto.createHmac('sha256', secretKey)
-                            .update(sortedString)
-                            .digest('hex');
-    
-    return signature;
-}
-
-// Example usage
-const params = {
-    order_id: '12345',
-    amount: '100',
-    currency: 'USD',
-};
-const secretKey = 'your_secret_key';
-
-const signature = generateSignature(params, secretKey);
-console.log('Generated Signature:', signature);
-
-```
-
-# Handling Notifications
-
-
-Efficiently manage notifications from Moby Payments to handle transactions, especially unsuccessful ones. When integrating with Moby Payments, you have the option to provide a **callback\_url**. This URL is used by Moby Payments to send direct callbacks to your system, acting similarly to a webhook. Whenever a transaction occurs, Moby Payments will make a request to this **callback\_url** with a payload containing the transaction details. This enables your system to receive real-time notifications about transactions, allowing you to process and respond to each event accordingly.
-
-Here’s what you need to do to handle those calls:
-
-1.  Verify: before action on any calls to this endpoint, you first need to verify the signature, [see here](#verifying-the-signature-of-calls)
-).
-    
-2.  Process & Response: Update your system based on the details given and respond to the call with the following message:
-    
-
-Status to be returned by your end.
 ```json
 {
-  "status": 'success',
+  "success": false,
+  "error": "Token not found"
 }
 ```
 
-Example Request Body
+---
+
+#### 🧠 Notes
+
+- A valid Bearer token is required.
+- Requests without proper authentication will return 401 Unauthorized.
+- Requests from unauthorized merchants will return 403 Forbidden.
+
+---
+
+### POST `/tokens/{token}/charges`
+
+Processes a payment using a previously tokenized card. Supports both 3DS (3-D Secure) and non-3DS flows.
+
+---
+
+#### 🔗 URL
+
+`POST /tokens/{token}/charges`
+
+---
+
+#### 📋 Headers
+
+```http
+Authorization: Bearer {api_token}
+Content-Type: application/json
+```
+
+---
+
+#### 📝 Request Parameters
+
+The request body must include the following fields as defined by `StoreTokenChargeRequest`:
+
+| Parameter         | Type    | Required | Description                                                      |
+|-------------------|---------|----------|------------------------------------------------------------------|
+| amount            | number  | Yes      | Amount to charge (minimum: 0)                                    |
+| order_reference   | string  | Yes      | Unique order reference for this transaction                      |
+| merchant_reference| string  | No       | Optional merchant-specific reference                             |
+| return_url        | string  | No       | URL to redirect after transaction completion                     |
+| callback_url      | string  | No       | URL to receive transaction webhook notifications                 |
+| skip_receipt      | boolean | No       | Whether to skip sending receipt emails                           |
+| details           | string  | No       | Transaction details or description                               |
+| custom_data       | string  | No       | Custom metadata for the transaction (JSON string)                |
+| 3ds               | boolean | Yes      | Whether to require 3D Secure authentication (`true` or `false`)  |
+
+---
+
+#### 📦 Sample Request
+
 ```json
 {
-  "referenceNo": "Payment Reference",
-	"transactionId": "Your Payment ID",
-	"amount": "Payment Amount",
-	"payMethod": "Payment Method Used By The User",
-	"status": "Payment Status",
-	"time": "Payment Time",
-	"signature": "Request Signature"
+  "amount": 100.50,
+  "order_reference": "ORDER-123456",
+  "merchant_reference": "MERCHANT-REF-7890",
+  "return_url": "https://merchant.com/payment-complete",
+  "callback_url": "https://merchant.com/webhook",
+  "skip_receipt": false,
+  "details": "Payment for Order #123456",
+  "custom_data": "{\"order_id\":\"123456\",\"product_id\":\"PRD123\"}",
+  "3ds": true
 }
 ```
 
-## Additional Support
+---
 
-For further assistance, you can reach our support teams:
+#### ✅ Success Response (200 OK)
 
-- **Customer Care**:  
-  - Email: [customercare@moby.my](mailto:customercare@moby.my)  
-  - Phone: 011 1111 5155
+- **If 3DS is enabled (`"3ds": true`)**:
 
-- **Merchant Support**:  
-  - Email: [merchantsupport@moby.my](mailto:merchantsupport@moby.my)  
-  - Phone: 011 1111 7177
+```json
+{
+  "success": true,
+  "redirect_url": "https://secure-3ds-provider.com/authenticate?ref=xyz"
+}
+```
 
+- **If 3DS is disabled (`"3ds": false`)**:
 
-[Return to Home](../README.md)
+```json
+{
+  "success": true,
+  "message": "Successfully charged",
+  "data": {
+    "referenceNo": "ref-2q134e32",
+    "merchantId": "MOBY123",
+    "status": "pending",
+    "amount": 100,
+    "payAt": "2025-02-01",
+    "createdAt": "2025-02-01",
+    "customer": {
+      "name": "test",
+      "email": "test@Test.com",
+      "phone": "123235"
+    },
+    "transactions": [
+      {
+        "transactionId": "1q23",
+        "status": "pending",
+        "amount": 100,
+        "payMethod": "MPGS",
+        "payAt": "2025-02-01",
+        "createdAt": "2025-02-01"
+      }
+    ]
+  }
+}
+```
+
+---
+
+#### ❌ Error Response
+
+```json
+{
+  "success": false,
+  "error": "DECLINED - Do not honor",
+  "message": "05 - Do not honor",
+  "data": null
+}
+```
+or, with additional data:
+```json
+{
+  "success": false,
+  "error": "Validation error",
+  "message": "The amount field is required.",
+  "data": {
+    "amount": ["The amount field is required."]
+  }
+}
+```
+
+---
+
+#### 🧠 Notes
+
+- This endpoint supports both 3DS and non-3DS (frictionless) charges.
+- When 3DS is enabled, the response will include a `redirect_url` for the customer to complete authentication. You must redirect your customer to this URL.
+- When 3DS is disabled, the response will include detailed charge data directly in JSON.
+- A valid Bearer token is required.
+- Requests without proper authentication will return 401 Unauthorized.
+- Requests from unauthorized merchants will return 403 Forbidden.
+
+---
+
+### GET `/charges/{merchant_order_reference}`
+
+Checks the status of a previously initiated token charge transaction.
+
+---
+
+#### 🔗 URL
+
+`GET /charges/{merchant_order_reference}`
+
+---
+
+#### 📋 Headers
+
+```http
+Authorization: Bearer {api_token}
+Content-Type: application/json
+```
+
+---
+
+#### 📝 Request Parameters
+
+| Parameter                 | Type   | Required | Description                               |
+|---------------------------|--------|----------|-------------------------------------------|
+| merchant_order_reference  | string | Yes      | Buy Now Pay Later reference used in the original charge |
+
+---
+
+#### 📦 Sample Request
+
+```json
+{
+  "merchant_order_reference": "BNPL-REF-123456"
+}
+```
+
+---
+
+#### ✅ Success Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "Charge Success",
+  "data": {
+    "result": "SUCCESS",
+    "response": {
+      "gatewayCode": "APPROVED",
+      "acquirerCode": "00",
+      "acquirerMessage": "Approved",
+      "transaction": {
+        "id": "TXN-035134a9-4580-43fc-b106-981cfb4968c4",
+        "amount": 100.50,
+        "currency": "MYR",
+        "timeOfRecord": "2025-04-25T12:34:56.000Z"
+      }
+    }
+  }
+}
+```
+
+---
+
+#### ❌ Error Response
+
+```json
+{
+  "success": false,
+  "error": "DECLINED - Do not honor",
+  "message": "05 - Do not honor",
+  "data": {
+    "result": "ERROR",
+    "response": {
+      "gatewayCode": "DECLINED",
+      "gatewayRecommendation": "Do not honor",
+      "acquirerCode": "05",
+      "acquirerMessage": "Do not honor"
+    }
+  }
+}
+```
+
+---
+
+#### 🧠 Notes
+
+- A valid Bearer token is required.
+- Requests without proper authentication will return 401 Unauthorized.
+- Requests from unauthorized merchants will return 403 Forbidden.
+
+---
+
+### POST `/charges/{merchant_order_reference}/refund`
+
+Queues a refund request for a previously successful token charge transaction. The refund request is flagged for asynchronous processing.
+
+---
+
+#### 🔗 URL
+
+`POST /charges/{merchant_order_reference}/refund`
+
+---
+
+#### 📋 Headers
+
+```http
+Authorization: Bearer {api_token}
+Content-Type: application/json
+```
+
+---
+
+#### 📝 Request Body
+
+The request body must include the following fields as defined by `RefundTokenChargeRequest`:
+
+| Parameter                 | Type   | Required | Description                                         |
+|---------------------------|--------|----------|-----------------------------------------------------|
+| amount                    | number | Yes      | Amount to refund (must be less than or equal to the original transaction amount) |
+
+**Example Request:**
+```json
+{
+  "amount": 100.50
+}
+```
+
+---
+
+#### ✅ Success Response (201 Created)
+
+```json
+{
+  "success": true,
+  "message": "Refund request submitted."
+}
+```
+
+---
+
+#### ❌ Error Responses
+
+- **Transaction not found:**
+  ```json
+  {
+    "success": false,
+    "error": "Transaction not found",
+    "data": "Transaction not found"
+  }
+  ```
+
+- **Unauthorized token ownership (403 Forbidden):**
+  ```json
+  {
+    "success": false,
+    "error": "Forbidden"
+  }
+  ```
+
+- **Validation error:**
+  ```json
+  {
+    "success": false,
+    "error": "Validation error",
+    "message": "The amount field is required.",
+    "data": {
+      "amount": ["The amount field is required."]
+    }
+  }
+  ```
+
+---
+
+#### 🧠 Notes
+
+- A valid Bearer token is required.
+- Requests without proper authentication will return 401 Unauthorized.
+- Requests from unauthorized merchants (not owning the transaction/token) will return 403 Forbidden.
+- The refund request is **queued/flagged for processing** (transaction status is set to `processing_refund`).
+- Actual refund fulfillment is handled **asynchronously** via a `DisputeRequest` and may not complete immediately.
+- The refund amount **cannot exceed** the original transaction amount.
+
+---
+
+## Error Handling
+
+All endpoints may return the following error responses:
+
+| Error Code | Description                        |
+|------------|----------------------------------|
+| 400        | Bad Request - Missing or invalid parameters |
+| 401        | Unauthorized - Invalid API token |
+| 403        | Forbidden - Access denied due to ownership or permissions |
+| 404        | Not Found - Transaction or resource not found |
+| 422        | Unprocessable Entity - Request validation failed |
+| 500        | Internal Server Error - Server-side error |
+
+Common error response format:
+
+```json
+{
+  "success": false,
+  "error": "Error message description"
+}
+```
+
+---
+
+## Implementation Notes
+
+- All monetary amounts must be provided as decimal numbers
+- Default currency: MYR (Malaysian Ringgit)
+- Authentication is required for all API routes using a Bearer token
+- The web route for saving cards returns an HTML form rather than JSON data
+- Successful transactions trigger email notifications to both customer and merchant unless `skip_receipt` is set to true
+- For refunds, the refund amount cannot exceed the original transaction amount
