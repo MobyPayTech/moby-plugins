@@ -5,9 +5,6 @@
 - [Introduction](#introduction)
 - [Base URLs](#base-urls)
 
-### 🔗 Web Routes
-- [`GET /mpgs/save-card`](#get-mpgssave-card)
-
 ### 🔐 API Routes
 - [`POST /api/auth/token`](#post-apiauthtoken)
 - [`GET /api/v2/tokens`](#get-apiv2tokens)
@@ -37,64 +34,6 @@ All API endpoints must be prefixed with the appropriate base URL depending on th
 | Production  | `https://pay.mobycheckout.com/`                 |
 
 > **Note:** Always test your integration thoroughly in the **Sandbox** environment before switching to **Production**.
-
-## 🌐 Web Routes
-
-### GET `/mpgs/save-card`
-
-Enables secure card information storage for future transactions via **MPGS (MasterCard Payment Gateway Services)**.
-
----
-
-#### 🔗 URL
-
-`GET /mpgs/save-card`
-
----
-
-#### 📝 Required Query Parameters
-
-| Parameter        | Description                     |
-|------------------|---------------------------------|
-| `merchantId`     | Merchant's client ID            |
-| `customerName`   | Customer's full name            |
-| `customerEmail`  | Customer's email address        |
-| `customerMobile` | Customer's mobile number        |
-
----
-
-#### 🧩 Optional Query Parameters
-
-| Parameter   | Description                                               |
-|-------------|-----------------------------------------------------------|
-| `billCode`  | Reference code for billing (if applicable)                |
-| `platform`  | Platform identifier (`moby` by default, or `mobyislamic`) |
-
----
-
-#### 📥 Response
-
-Returns an **HTML page** with a secure card input form for tokenization.
-
----
-
-#### 🔍 Example Request URL
-<https://dev-pay-refactor.mobycheckout.com/mpgs/save-card?merchantId=MOBY00000059&customerName=Sohag%20Hasan&customerEmail=sohag@mobypay.my&customerMobile=112211221122>
-
----
-
-#### ✅ Example Success Redirect URL
-<https://dev-pay-refactor.mobycheckout.com/receipt?merchant=146&bill_code=&platform=moby&retryUrl=&amount=0.00&description=MPGS%20Tokenize%20card%20for%20sohag%40mobypay.my&reference_no=TKN-20250425-680b1f9f569b6&isWebsite=1&moby_trans_id=202504254947338592917&transaction_id=202504254947338592917&status=success&x-trace-id=7d245751-43d8-4ea3-b3ee-d5f1263b8a2a>
-
----
-
-#### 🧠 Notes
-
-- **No charge** is applied during card tokenization (amount is set to `0.00`).
-- **Tokenized cards** are securely stored and linked to the customer's profile.
-- **UI styling** may vary based on the `platform` query parameter.
-
----
 
 ## 🔐 API Routes
 
