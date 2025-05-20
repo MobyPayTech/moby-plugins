@@ -10,9 +10,9 @@
 - [`GET /api/v2/tokens`](#get-apiv2tokens)
 - [`POST /api/v2/tokens`](#post-apiv2tokens)
 - [`DELETE /api/v2/tokens/{token}`](#delete-apiv2tokens-token)
-- [`POST /tokens/{token}/charges`](#post-tokens-token-charges)
-- [`GET /charges/{merchant_order_reference}`](#get-charges-merchant_order_reference)
-- [`POST /charges/{merchant_order_reference}/refund`](#post-charges-merchant_order_reference-refund)
+- [`POST /api/v2/tokens/{token}/charges`](#post-apiv2tokens-token-charges)
+- [`GET /api/v2/charges/{order_reference}`](#get-apiv2chargesorder_reference)
+- [`POST /api/v2/charges/{order_reference}/refund`](#post-apiv2chargesorder_referencerefund)
 
 - [Error Handling](#error-handling)
 - [Implementation Notes](#implementation-notes)
@@ -278,14 +278,16 @@ The request body must include the following fields as defined by `StoreTokenRequ
 
 #### ✅ Success Response (201 Created)
 
-The response includes a `url` field where the customer can enter their card information to complete tokenization.
+The response includes a `redirect_url` field where the customer can enter their card information to complete tokenization.
 
 ```json
 {
   "success": true,
-  "url": "https://dev-pay-refactor.mobycheckout.com/mpgs/save-card?merchantId=MOBY00000123&customerName=John%20Doe&customerEmail=john@example.com&customerMobile=60123456789"
+  "redirect_url": "https://dev-pay-refactor.mobycheckout.com/mpgs/save-card?merchantId=MOBY00000123&customerName=John%20Doe&customerEmail=john@example.com&customerMobile=60123456789"
 }
 ```
+
+***The returned `redirect_url` should be presented to the customer to complete card entry and tokenization.***
 
 ---
 
@@ -305,7 +307,6 @@ The response includes a `url` field where the customer can enter their card info
 - A valid Bearer token is required.
 - Requests without proper authentication will return 401 Unauthorized.
 - Requests from unauthorized merchants will return 403 Forbidden.
-- The returned `url` should be presented to the customer to complete card entry and tokenization.
 
 ---
 
@@ -368,7 +369,7 @@ Content-Type: application/json
 
 ---
 
-### POST `/tokens/{token}/charges`
+### POST `/api/v2/tokens/{token}/charges`
 
 Processes a payment using a previously tokenized card. Supports both 3DS (3-D Secure) and non-3DS flows.
 
@@ -376,7 +377,7 @@ Processes a payment using a previously tokenized card. Supports both 3DS (3-D Se
 
 #### 🔗 URL
 
-`POST /tokens/{token}/charges`
+`POST /api/v2/tokens/{token}/charges`
 
 ---
 
@@ -505,7 +506,7 @@ or, with additional data:
 
 ---
 
-### GET `/charges/{merchant_order_reference}`
+### GET `/api/v2/charges/{order_reference}`
 
 Checks the status of a previously initiated token charge transaction.
 
@@ -513,7 +514,7 @@ Checks the status of a previously initiated token charge transaction.
 
 #### 🔗 URL
 
-`GET /charges/{merchant_order_reference}`
+`GET /api/v2/charges/{order_reference}`
 
 ---
 
@@ -528,18 +529,18 @@ Content-Type: application/json
 
 #### 📝 Request Parameters
 
-| Parameter                 | Type   | Required | Description                               |
-|---------------------------|--------|----------|-------------------------------------------|
-| merchant_order_reference  | string | Yes      | Buy Now Pay Later reference used in the original charge |
+| Parameter        | Type   | Required | Description                                            |
+|------------------|--------|----------|--------------------------------------------------------|
+| order_reference  | string | Yes      | Buy Now Pay Later reference used in the original charge |
 
 ---
 
 #### 📦 Sample Request
 
-```json
-{
-  "merchant_order_reference": "BNPL-REF-123456"
-}
+```bash
+curl -X GET "https://dev-pay-refactor.mobycheckout.com/charges/BNPL-REF-123456" \
+  -H "Authorization: Bearer {api_token}" \
+  -H "Content-Type: application/json"
 ```
 
 ---
@@ -598,7 +599,7 @@ Content-Type: application/json
 
 ---
 
-### POST `/charges/{merchant_order_reference}/refund`
+### POST `/api/v2/charges/{order_reference}/refund`
 
 Queues a refund request for a previously successful token charge transaction. The refund request is flagged for asynchronous processing.
 
@@ -606,7 +607,7 @@ Queues a refund request for a previously successful token charge transaction. Th
 
 #### 🔗 URL
 
-`POST /charges/{merchant_order_reference}/refund`
+`POST /api/v2/charges/{order_reference}/refund`
 
 ---
 
@@ -623,9 +624,9 @@ Content-Type: application/json
 
 The request body must include the following fields as defined by `RefundTokenChargeRequest`:
 
-| Parameter                 | Type   | Required | Description                                         |
-|---------------------------|--------|----------|-----------------------------------------------------|
-| amount                    | number | Yes      | Amount to refund (must be less than or equal to the original transaction amount) |
+| Parameter        | Type   | Required | Description                                                                           |
+|------------------|--------|----------|---------------------------------------------------------------------------------------|
+| amount           | number | Yes      | Amount to refund (must be less than or equal to the original transaction amount)      |
 
 **Example Request:**
 ```json
