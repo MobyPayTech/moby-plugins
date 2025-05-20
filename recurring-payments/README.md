@@ -413,7 +413,7 @@ The request body must include the following fields as defined by `StoreTokenChar
 ```json
 {
   "amount": 100.50,
-  "order_reference": "ORDER-123456",
+  "order_reference": "BNPL-REF-123456",
   "merchant_reference": "MERCHANT-REF-7890",
   "return_url": "https://merchant.com/payment-complete",
   "callback_url": "https://merchant.com/webhook",
