@@ -53,10 +53,12 @@ Authenticates a merchant and generates a bearer token for accessing protected AP
 
 ```http
 Content-Type: application/json
+Accept: application/json
 ```
 or
 ```http
 Content-Type: multipart/form-data
+Accept: application/json
 ```
 
 ---
@@ -139,6 +141,7 @@ Retrieves a paginated list of saved card tokens for a merchant's customers, opti
 ```http
 Authorization: Bearer {api_token}
 Content-Type: application/json
+Accept: application/json
 ```
 
 ---
@@ -246,6 +249,7 @@ Initiates the process to create a new card token for a customer. Returns a URL w
 ```http
 Authorization: Bearer {api_token}
 Content-Type: application/json
+Accept: application/json
 ```
 
 ---
@@ -327,6 +331,7 @@ Deletes a saved card token.
 ```http
 Authorization: Bearer {api_token}
 Content-Type: application/json
+Accept: application/json
 ```
 
 ---
@@ -386,6 +391,7 @@ Processes a payment using a previously tokenized card. Supports both 3DS (3-D Se
 ```http
 Authorization: Bearer {api_token}
 Content-Type: application/json
+Accept: application/json
 ```
 
 ---
@@ -523,6 +529,7 @@ Checks the status of a previously initiated token charge transaction.
 ```http
 Authorization: Bearer {api_token}
 Content-Type: application/json
+Accept: application/json
 ```
 
 ---
@@ -616,6 +623,7 @@ Queues a refund request for a previously successful token charge transaction. Th
 ```http
 Authorization: Bearer {api_token}
 Content-Type: application/json
+Accept: application/json
 ```
 
 ---
