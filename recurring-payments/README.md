@@ -348,12 +348,13 @@ Accept: application/json
 | Parameter | Type   | Required | Description                |
 |-----------|--------|----------|----------------------------|
 | token     | string | Yes      | Token identifier to delete |
+| client_id | string | Yes      | Client ID                  |
 
 ---
 
 #### 📦 Sample Request
 ```bash
-curl -X DELETE https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token} \
+curl -X DELETE https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}?client_id=Moby00003 \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json"
@@ -413,12 +414,13 @@ Accept: application/json
 
 ---
 
-#### 📝 Request Parameters
+#### 📝 Request Body
 
 The request body must include the following fields as defined by `StoreTokenChargeRequest`:
 
 | Parameter         | Type    | Required | Description                                                      |
 |-------------------|---------|----------|------------------------------------------------------------------|
+| client_id         | string  | Yes      | Client ID                                                        |
 | amount            | number  | Yes      | Amount to charge (minimum: 0)                                    |
 | order_reference   | string  | Yes      | Unique order reference for this transaction                      |
 | merchant_reference| string  | No       | Optional merchant-specific reference                             |
@@ -439,6 +441,7 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}/cha
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
+    "client_id": "Moby0003",
     "amount": 100.50,
     "order_reference": "BNPL-REF-123456",
     "merchant_reference": "MERCHANT-REF-7890",
@@ -560,13 +563,14 @@ Accept: application/json
 | Parameter        | Type   | Required | Description                                            |
 |------------------|--------|----------|--------------------------------------------------------|
 | order_reference  | string | Yes      | Buy Now Pay Later reference used in the original charge |
+| client_id        | string | Yes      | Client ID
 
 ---
 
 #### 📦 Sample Request
 
 ```bash
-curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/BNPL-REF-123456" \
+curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/BNPL-REF-123456?client_id=Moby00003" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json"
 ```
@@ -656,6 +660,7 @@ The request body must include the following fields as defined by `RefundTokenCha
 | Parameter        | Type   | Required | Description                                                                           |
 |------------------|--------|----------|---------------------------------------------------------------------------------------|
 | amount           | number | Yes      | Amount to refund (must be less than or equal to the original transaction amount)      |
+| client_id        | string | Yes      | Client ID
 
 **Example Request:**
 ```bash
@@ -664,7 +669,8 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/charges/{order_ref
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
-    "amount": 100.50
+    "amount": 100.50,
+    "client_id": "Moby0003"
   }'
 ```
 
