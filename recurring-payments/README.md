@@ -566,7 +566,7 @@ Accept: application/json
 #### 📦 Sample Request
 
 ```bash
-curl -X GET "https://dev-pay-refactor.mobycheckout.com/charges/BNPL-REF-123456" \
+curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/BNPL-REF-123456" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json"
 ```
