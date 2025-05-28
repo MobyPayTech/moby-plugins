@@ -1,6 +1,6 @@
 # Moby Islamic BNPL Shopify Plugin
 
-[**Install the Moby Islamic BNPL Plugin**](https://apps.shopify.com/airapay)
+[**Install the Moby Islamic BNPL Plugin**](https://apps.shopify.com/moby-islamic)
 
 ## Overview
 
@@ -15,7 +15,7 @@ The **Moby Islamic BNPL (Buy Now, Pay Later)** plugin allows Shopify merchants t
 
 ### Step 1: Install the Plugin
 
-1. Visit the [Moby Islamic BNPL Plugin](https://apps.shopify.com/airapay) page on the Shopify App Store.
+1. Visit the [Moby Islamic BNPL Plugin](https://apps.shopify.com/moby-islamic) page on the Shopify App Store.
 2. Click **Add app** to install the plugin on your Shopify store.
 
 > ✅ **Note**: After installing the plugin, you will be redirected directly to the configuration page to enter your Moby Islamic BNPL credentials.
