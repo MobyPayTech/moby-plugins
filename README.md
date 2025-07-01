@@ -45,7 +45,7 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 
 - [Install Moby Checkout Shopify Plugin](https://apps.shopify.com/moby-checkout) or [Go To Installation Guide](shopify/moby-checkout/READEME.md)
 - [Install Price Divider Shopify Plugin](https://apps.shopify.com/moby-price-divider) or [Go To Installation Guide](shopify/price-divider/README.md)
-- [Install Moby Islamic BNPL Shopify Plugin](https://apps.shopify.com/airapay) or [Go To Installation Guide](shopify/moby-islamic/README.md)
+- [Install Moby Islamic BNPL Shopify Plugin](https://apps.shopify.com/moby-islamic) or [Go To Installation Guide](shopify/moby-islamic/README.md)
 
 
 #### EasyStore
