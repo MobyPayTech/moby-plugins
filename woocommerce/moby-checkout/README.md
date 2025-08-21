@@ -1,6 +1,6 @@
 # MobypayCheckoutGateway WordPress Plugin
 
-[**Download the Latest WooCommerce Plugin - v1.3.0**](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/moby-checkout/v1.3.0/moby-checkout.zip)
+[**Download the Latest WooCommerce Plugin - v1.4.0**](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/moby-checkout/v1.4.0/moby-checkout.zip)
 
 ## Overview
 
