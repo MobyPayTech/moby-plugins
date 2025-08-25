@@ -1,6 +1,6 @@
 # MobypayCheckoutGateway WordPress Plugin
 
-[**Download the Latest WooCommerce Plugin - v1.4.0**](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/moby-checkout/v1.4.0/moby-checkout.zip)
+[**Download the Latest WooCommerce Plugin - v1.4.1**](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/moby-checkout/v1.4.1/moby-checkout.zip)
 
 ## Overview
 
@@ -57,13 +57,14 @@ The `mobypay_response` method in `includes/mobypay-checkout-gateway.php` manages
 
 For further assistance, you can reach our support teams:
 
-- **Customer Care**:  
-  - Email: [customercare@moby.my](mailto:customercare@moby.my)  
+- **Customer Care**:
+
+  - Email: [customercare@moby.my](mailto:customercare@moby.my)
   - Phone: 011 1111 5155
 
-- **Merchant Support**:  
-  - Email: [merchantsupport@moby.my](mailto:merchantsupport@moby.my)  
-  - Phone: 011 1111 7177
+- **Merchant Support**:
 
+  - Email: [merchantsupport@moby.my](mailto:merchantsupport@moby.my)
+  - Phone: 011 1111 7177
 
   [Return to Home](../README.md)
