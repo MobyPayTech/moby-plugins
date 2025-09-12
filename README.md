@@ -9,6 +9,7 @@
   - [WooCommerce](#woocommerce)
   - [Shopify](#shopify)
   - [EasyStore](#easystore)
+- [Promotional Images Managing For POS and Receipt](#promotional-images-for-pos-and-receipt)
 - [Additional Support](#additional-support)
 
 # About Moby Money
@@ -52,6 +53,14 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 
 - [Moby Checkout EasyStore Installation Guide](easy-store/moby-checkout/README.md)
 - [Price Divider EasyStore Installation Guide](easy-store/price-divider/README.md)
+
+## Promotional Images For POS and Receipt
+
+Promotional images are managed in the WordPress Admin Panel and shown in both the POS terminal and customer receipts.  
+Any updates made by admins are reflected instantly through the APIs.
+
+- [View Documentation](promotional-images/README.md)
+
 
 ## Additional Support
 
