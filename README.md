@@ -4,6 +4,7 @@
 - [Moby Checkout Sandbox Test](#moby-checkout-sandbox-test)
 - [Direct Integration Guide](#direct-integration-guide)
 - [Recurring Payment Integration Guide](#recurring-integration-guide)
+- [POS-KIOSK Integration](#pos-kiosk-integration)
 - [Moby Money Plugins](#moby-money-plugins)
   - [OpenCart](#opencart)
   - [WooCommerce](#woocommerce)
@@ -26,6 +27,10 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 ### Recurring Payment Integration Guide
 
 - [Recurring Payment Integration Guide](recurring-payments/README.md)
+
+### POS-KIOSK Integration
+
+- [POS-KIOSK Integration Guide](pos-kiosk-integration/README.md)
 
 ### Moby Money Plugins
 
