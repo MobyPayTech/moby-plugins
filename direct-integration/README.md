@@ -198,15 +198,15 @@ Example Request Body
 
 ```bash
 {
-"referenceNo":"234test1232111111qw343",
-"transactionId":"******11196916084427898",
-"amount":"60.00",
-"payMethod":"TEST",
-"status":"success",
-"time":"2025-11-19 14:52:52",
-"merchantOrderRef":null,
-"description":"Approved",
-"signature":"ac5e3e158839b691f69a7a933035f75b443ef3c4e40f7e8bf82ae1af68fa3ebb"
+  "referenceNo":"234test1232111111qw343",
+  "transactionId":"******11196916084427898",
+  "amount":"60.00",
+  "payMethod":"TEST",
+  "status":"success",
+  "time":"2025-11-19 14:52:52",
+  "merchantOrderRef":null,
+  "description":"Approved",
+  "signature":"ac5e3e158839b691f69a7a933035f75b443ef3c4e40f7e8bf82ae1af68fa3ebb"
 }
 ```
 
