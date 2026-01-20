@@ -57,20 +57,20 @@ With the authorization token, you can now create a payment session for your user
 Example Request:
 ```bash
 curl -X POST "[PAYMENT_URL]/api/merchant/payment/checkout/hosted" \
-     -H "Authorization: Bearer your_access_token" \
-     -H "Content-Type: application/json" \
-     -d '{
-         "amount": 100,
-         "reference": 100,
-         "clientId": "YOUR_CLIENT_ID"
-         "details": "additional information"
-         "cart: "Purchased items details"
-         "customerName": "customer name",
-         "customerEmail": "customer@example.com",
-         "customerMobile": "0111222333",
-         "returnUrl": "https://yourapp.com/payment/complete"
-         "callbackUrl": "https://yourapp.com/payment/moby/status"
-        }'
+  -H "Authorization: Bearer your_access_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 100,
+    "referenceNo": "REFERENCE_NUMBER",
+    "clientId": "YOUR_CLIENT_ID",
+    "details": "additional information",
+    "cart": "Purchased items details",
+    "customerName": "customer name",
+    "customerEmail": "customer@example.com",
+    "customerMobile": "0111222333",
+    "returnUrl": "https://yourapp.com/payment/complete",
+    "callback_url": "https://yourapp.com/payment/moby/status"
+  }'
 ```
 
 ### **Step 3: Complete the Payment**
@@ -91,12 +91,14 @@ Example Response:
 ```bash
 {
   "referenceNo": "Payment Reference",
-	"transactionId": "Your Payment ID",
-	"amount": "Payment Amount",
-	"payMethod": "Payment Method Used By The User",
-	"status": "Payment Status",
-	"time": "Payment Time",
-	"signature": "Request Signature"
+  "transactionId": "Your Payment ID",
+  "amount": "Payment Amount",
+  "payMethod": "Payment Method Used By The User",
+  "status": "Payment Status",
+  "time": "Payment Time (YYYY-MM-DD HH:mm:ss)",
+  "merchantOrderRef": "Merchant Order Reference",
+  "description": "Payment Description or Status Description",
+  "signature": "Request Signature"
 }
 ```
 
