@@ -4,6 +4,7 @@
 - [Moby Checkout Sandbox Test](#moby-checkout-sandbox-test)
 - [Direct Integration Guide](#direct-integration-guide)
 - [Recurring Payment Integration Guide](#recurring-integration-guide)
+- [POS-KIOSK Integration](#pos-kiosk-integration)
 - [Moby Money Plugins](#moby-money-plugins)
   - [OpenCart](#opencart)
   - [WooCommerce](#woocommerce)
@@ -27,6 +28,10 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 
 - [Recurring Payment Integration Guide](recurring-payments/README.md)
 
+### POS-KIOSK Integration
+
+- [POS-KIOSK Integration Guide](pos-kiosk-integration/README.md)
+
 ### Moby Money Plugins
 
 #### OpenCart
@@ -45,11 +50,14 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 
 - [Install Moby Checkout Shopify Plugin](https://apps.shopify.com/moby-checkout) or [Go To Installation Guide](shopify/moby-checkout/READEME.md)
 - [Install Price Divider Shopify Plugin](https://apps.shopify.com/moby-price-divider) or [Go To Installation Guide](shopify/price-divider/README.md)
+- [Install Moby Islamic BNPL Shopify Plugin](https://apps.shopify.com/moby-islamic) or [Go To Installation Guide](shopify/moby-islamic/README.md)
+
 
 #### EasyStore
 
 - [Moby Checkout EasyStore Installation Guide](easy-store/moby-checkout/README.md)
 - [Price Divider EasyStore Installation Guide](easy-store/price-divider/README.md)
+
 
 ## Additional Support
 
