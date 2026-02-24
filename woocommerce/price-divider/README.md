@@ -19,7 +19,7 @@ The plugin supports customizable installment counts, minimum price thresholds, a
 
 ## Installation
 
-1. Download The Plugin [Click Here](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/price-divider/moby-price-divider.zip)
+1. Download The Plugin [Click Here](https://raw.githubusercontent.com/MobyPayTech/moby-plugins/main/woocommerce/price-divider/v1.3/moby-price-divider.zip)
 2. Navigate to your WordPress admin dashboard.
 3. Go to **Plugins > Add New** and click on the **Upload Plugin** button.
 4. Select the moby-price-divider.zip file and click **Install Now**.
