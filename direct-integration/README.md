@@ -86,9 +86,9 @@ Example Response:
   "amount": "Payment Amount",
   "payMethod": "Payment Method Used By The User",
   "status": "Payment Status",
-  "time": "Payment Time",
-  "merchantOrderRef" : "Order refrence",
-  "description": "Payment Description",
+  "time": "Payment Time (YYYY-MM-DD HH:mm:ss)",
+  "merchantOrderRef": "Merchant Order Reference",
+  "description": "Payment Description or Status Description",
   "signature": "Request Signature"
 }
 ```
