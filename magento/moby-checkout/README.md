@@ -38,7 +38,6 @@ Required core module files:
 - Magento Open Source / Adobe Commerce
 - PHP version compatible with your Magento version
 - CLI access to run `bin/magento` commands
-- Public HTTPS URL reachable by Moby for callback
 - Store currency for checkout/order must be **MYR**
 
 ---
