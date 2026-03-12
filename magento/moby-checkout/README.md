@@ -78,12 +78,7 @@ bin/magento indexer:reindex
 Go to:
 
 `Admin > Stores > Configuration > Sales > Payment Methods > Moby Checkout`
-
-### Screenshot placeholders
-Add your screenshots in your final client version:
-
-- `![Moby Checkout Admin Section](docs/images/admin-payment-method.png)`
-- `![Checkout Payment Method UI](docs/images/checkout-payment-ui.png)`
+![alt text](image.png)
 
 ### Field reference
 
