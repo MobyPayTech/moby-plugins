@@ -15,9 +15,6 @@ The Moby Checkout module adds a payment method in Magento checkout and redirects
 ### Key capabilities
 - Hosted checkout redirect flow
 - Sandbox (`test`) and Production (`live`) modes
-- Secure API key storage in Magento config
-- Payment callback + return handling
-- Signature validation for callback security
 - Configurable checkout logos (Visa, Mastercard, Maybank, FPX)
 - Dedicated module log: `var/log/moby_checkout.log`
 
