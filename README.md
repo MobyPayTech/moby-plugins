@@ -8,6 +8,7 @@
 - [Moby Money Plugins](#moby-money-plugins)
   - [OpenCart](#opencart)
   - [WooCommerce](#woocommerce)
+  - [Magento](#magento)
   - [Shopify](#shopify)
   - [EasyStore](#easystore)
 - [Additional Support](#additional-support)
@@ -45,6 +46,10 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 
 - [Moby Checkout WooCommerce Plugin](https://github.com/MobyPayTech/moby-plugins/tree/main/woocommerce/moby-checkout)
 - [Price Divider WooCommerce Plugin](https://github.com/MobyPayTech/moby-plugins/tree/main/woocommerce/price-divider)
+
+#### Magento
+
+- [Moby Checkout Magento Plugin](https://github.com/MobyPayTech/moby-plugins/tree/main/magento/moby-checkout)
 
 #### Shopify
 
