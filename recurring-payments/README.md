@@ -1,80 +1,100 @@
-# MobyPay Recurring API Documentation
+# MobyPay Recurring API Documentation 📚
 
-## 📚 Table of Contents
+## Table of Contents
 
 - [Introduction](#introduction)
 - [Base URLs](#base-urls)
-
-### 🔐 API Routes
-- [`POST /api/auth/token`](#post-apiauthtoken)
-- [`GET /api/v2/tokens`](#get-apiv2tokens)
-- [`POST /api/v2/tokens`](#post-apiv2tokens)
-- [`DELETE /api/v2/tokens/{token}`](#delete-apiv2tokens-token)
-- [`POST /api/v2/tokens/{token}/charges`](#post-apiv2tokens-token-charges)
-- [`GET /api/v2/charges/{order_reference}`](#get-apiv2chargesorder_reference)
-- [`POST /api/v2/charges/{order_reference}/refund`](#post-apiv2chargesorder_referencerefund)
-
+- [Rate Limiting](#rate-limiting)
+- [API Versioning](#api-versioning)
+- [API Routes](#api-routes)
+  - [POST /api/auth/token](#post-apiauthtoken)
+  - [GET /api/v2/tokens](#get-apiv2tokens)
+  - [POST /api/v2/tokens](#post-apiv2tokens)
+  - [DELETE /api/v2/tokens/{token}](#delete-apiv2tokenstoken)
+  - [POST /api/v2/tokens/{token}/charges](#post-apiv2tokenstokencharges)
+  - [GET /api/v2/charges/{order_reference}](#get-apiv2chargesorder_reference)
+  - [POST /api/v2/charges/{order_reference}/refund](#post-apiv2chargesorder_referencerefund)
 - [Error Handling](#error-handling)
 - [Implementation Notes](#implementation-notes)
 
+---
+
 ## 🚀 Introduction
 
-This documentation provides comprehensive information about **MobyPay's** payment processing API.  
-It covers everything from card tokenization and token management to transaction processing and refunds.
+This documentation provides comprehensive information about MobyPay's recurring payment processing API. It covers card tokenization, token management, transaction processing, and refunds.
+
+> **Note:** All monetary amounts are in **MYR (Malaysian Ringgit)** unless otherwise specified.
 
 ---
 
 ## 🌐 Base URLs
 
-All API endpoints must be prefixed with the appropriate base URL depending on the environment:
+All API endpoints must be prefixed with the appropriate base URL depending on your environment:
 
-| Environment | Base URL                                         |
-|-------------|--------------------------------------------------|
-| Sandbox     | `https://dev-pay-refactor.mobycheckout.com/`    |
-| Production  | `https://pay.mobycheckout.com/`                 |
+| Environment | Base URL |
+|-------------|----------|
+| Sandbox | `https://dev-pay-refactor.mobycheckout.com/` |
+| Production | `https://pay.mobycheckout.com/` |
 
-> **Note:** Always test your integration thoroughly in the **Sandbox** environment before switching to **Production**.
+> ⚠️ Always test your integration thoroughly in the **Sandbox** environment before switching to **Production**.
+
+---
+
+## ⏱️ Rate Limiting
+
+To ensure service stability, the API enforces rate limits. Exceeding these limits will result in an HTTP **429 Too Many Requests** response.
+
+| Limit Type | Limit |
+|------------|-------|
+| Authentication requests | 10 requests per minute per client |
+| General API requests | 60 requests per minute per token |
+
+When you receive a 429 response, wait before retrying. The response will include a `Retry-After` header indicating when you may resume requests.
+
+```json
+{
+  "success": false,
+  "error": "TOO_MANY_REQUESTS",
+  "message": "Rate limit exceeded. Please retry after 30 seconds."
+}
+```
+
+---
+
+## 🔖 API Versioning
+
+The current API version is **v2** (indicated by the `/v2/` path prefix).
+
+> **Note:** If you are using a previous integration without the `/v2/` prefix, please contact Merchant Support to discuss migration to the current API version.
+
+---
 
 ## 🔐 API Routes
 
-### POST `/api/auth/token`
+### POST /api/auth/token
 
 Authenticates a merchant and generates a bearer token for accessing protected API endpoints.
 
----
+**🔗 URL**
+```
+POST /api/auth/token
+```
 
-#### 🔗 URL
-
-`POST /api/auth/token`
-
----
-
-#### 📋 Headers
-
-```http
+**📋 Headers**
+```
 Content-Type: application/json
 Accept: application/json
 ```
-or
-```http
-Content-Type: multipart/form-data
-Accept: application/json
-```
 
----
+**📝 Request Parameters**
 
-#### 📝 Request Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| clientId | string | Yes | Merchant's client ID provided during onboarding |
+| secretKey | string | Yes | Secret key provided during onboarding |
+| scope | string | No | Access scope (default: 'pay') |
 
-| Parameter   | Type   | Required | Description                                         |
-|-------------|--------|----------|-----------------------------------------------------|
-| `clientId`  | string | Yes      | Merchant's client ID provided during onboarding     |
-| `secretKey` | string | Yes      | Secret key provided during onboarding               |
-| `scope`     | string | No       | Access scope (default: `'pay'`)                     |
-
----
-
-#### 📦 Sample Request
-
+**📦 Sample Request**
 ```bash
 curl -X POST https://dev-pay-refactor.mobycheckout.com/api/auth/token \
   -H "Content-Type: application/json" \
@@ -85,139 +105,95 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/auth/token \
   }'
 ```
 
----
-
-#### ✅ Success Response (200 OK)
-
+**✅ Success Response (200 OK)**
 ```json
 {
-    "status": "success",
-    "success": true,
-    "msg": "Authentication success",
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjaWQiOiJNT0JZMDAwMDAwMDMiLCJzayI6ImEyRFFxZndVb3hmNlplVERidWtpN01Ob0FwMGoyeiIsImNBdCI6IjIwMjQtMTAtMDJUMDY6NDQ6MjQuMTI3NTMwWiIsImVBdCI6IjIwMjQtMTAtMDIgMTU6MTQ6MjQifQ.UskpUcFxAAXb9eFvnYmiJc_d-JenUioRQO_NLhsmMco",
-    "expired_at": "2025-04-25 15:14:24",
-    "scope": "pay"
+  "status": "success",
+  "success": true,
+  "msg": "Authentication success",
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "expired_at": "2025-04-25 15:14:24",
+  "scope": "pay"
 }
 ```
 
----
-
-#### ❌ Error Response
-
+**❌ Error Response**
 ```json
 {
-    "success": false,
-    "error": "BAD_REQUEST",
-    "msg": "Incorrect credentials!"
+  "success": false,
+  "error": "BAD_REQUEST",
+  "msg": "Incorrect credentials!"
 }
 ```
 
----
-
-#### 🧠 Notes
-
-- **Token validity**: 30 minutes (1800 seconds)
-- Include the token in the `Authorization` header as a **Bearer token** for all protected endpoints:
-
-```http
-Authorization: Bearer <token>
-```
-
-- Expired tokens will return 401 Unauthorized responses.
+**🧠 Notes**
+- Token validity: **30 minutes (1800 seconds)**
+- Include the token in the Authorization header as a Bearer token for all protected endpoints: `Authorization: Bearer <token>`
+- Expired tokens will return `401 Unauthorized` responses.
 
 ---
 
-### GET `/api/v2/tokens`
+### GET /api/v2/tokens
 
 Retrieves a paginated list of saved card tokens for a merchant's customers, optionally filtered by customer information.
 
----
+**🔗 URL**
+```
+GET /api/v2/tokens
+```
 
-#### 🔗 URL
-
-`GET /api/v2/tokens`
-
----
-
-#### 📋 Headers
-
-```http
+**📋 Headers**
+```
 Authorization: Bearer {api_token}
 Content-Type: application/json
 Accept: application/json
 ```
 
----
+**📝 Query Parameters**
 
-#### 📝 Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| client_id | string | Yes | Merchant's client ID |
+| name | string | No | Filter tokens by customer name (partial match) |
+| email | string | No | Filter tokens by customer email (partial match) |
+| mobile | string | No | Filter tokens by customer mobile number (partial match) |
+| page | int | No | Page number for pagination |
+| per_page | int | No | Number of results per page |
 
-| Parameter | Type   | Required | Description                                        |
-|-----------|--------|----------|----------------------------------------------------|
-| client_id | string | Yes      | Merchant's client ID                               |
-| name      | string | No       | Filter tokens by customer name (partial match)     |
-| email     | string | No       | Filter tokens by customer email (partial match)    |
-| mobile    | string | No       | Filter tokens by customer mobile number (partial match) |
-| page      | int    | No       | Page number for pagination                         |
-| per_page  | int    | No       | Number of results per page                         |
-
----
-
-#### 📦 Example Request
-
+**📦 Example Request**
 ```bash
 curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/tokens?client_id=MOBY00000123&email=john@example.com" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json"
 ```
 
----
-
-#### ✅ Success Response (200 OK)
-
-Returns a paginated list of tokens, each with associated customer information.
-
+**✅ Success Response (200 OK)**
 ```json
 {
-    "success": true,
-    "current_page": 1,
-    "per_page": 15,
-    "total": 2,
-    "last_page": 1,
-    "data": [
-        {
-            "provider": null,
-            "type": null,
-            "token": "b1df18d393e0610af46e5b1d7d5be79ccb596c2fe1546facd2723ec6956ad0e9",
-            "firstSix": "512345",
-            "lastFour": "0008",
-            "expiryYearMonth": "0139",
-            "customer": {
-            "name": "John Doe",
-            "email": "john@example.com",
-            "mobile": "60123456789"
-            }
-        },
-        {
-            "provider": "VISA",
-            "type": "DEBIT",
-            "token": "a4cd81fe5729438cb92105e73d9be4f12c596c2fe1546facd2723ec6956ad0e9",
-            "firstSix": "411111",
-            "lastFour": "1234",
-            "expiryYearMonth": "0240",
-            "customer": {
-            "name": "John Doe",
-            "email": "john@example.com",
-            "mobile": "60123456789"
-            }
-        }
-        ]
+  "success": true,
+  "current_page": 1,
+  "per_page": 15,
+  "total": 2,
+  "last_page": 1,
+  "data": [
+    {
+      "provider": null,
+      "type": null,
+      "token": "b1df18d393e0610af46e5b1d7d5be79ccb596c2fe1546facd2723ec6956ad0e9",
+      "firstSix": "512345",
+      "lastFour": "0008",
+      "expiryYearMonth": "0139",
+      "customer": {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "mobile": "60123456789"
+      }
+    }
+  ]
 }
 ```
 
----
-
-#### ❌ Error Response
-
+**❌ Error Response**
 ```json
 {
   "success": false,
@@ -225,53 +201,38 @@ Returns a paginated list of tokens, each with associated customer information.
 }
 ```
 
----
-
-#### 🧠 Notes
-
-- A valid Bearer token is required.
-- Requests without proper authentication will return 401 Unauthorized.
-- Requests from unauthorized merchants will return 403 Forbidden.
+**🧠 Notes**
+- A valid Bearer token is required. Requests without proper authentication will return `401 Unauthorized`.
+- Requests from unauthorized merchants will return `403 Forbidden`.
 
 ---
 
-### POST `/api/v2/tokens`
+### POST /api/v2/tokens
 
 Initiates the process to create a new card token for a customer. Returns a URL where the customer can securely enter their card details.
 
----
+**🔗 URL**
+```
+POST /api/v2/tokens
+```
 
-#### 🔗 URL
-
-`POST /api/v2/tokens`
-
----
-
-#### 📋 Headers
-
-```http
+**📋 Headers**
+```
 Authorization: Bearer {api_token}
 Content-Type: application/json
 Accept: application/json
 ```
 
----
+**📝 Request Body**
 
-#### 📝 Request Body
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| client_id | string | Yes | Merchant's client ID |
+| customer_email | string | Yes | Customer's email address |
+| customer_name | string | Yes | Customer's full name |
+| customer_mobile | string | Yes | Customer's mobile number |
 
-The request body must include the following fields as defined by `StoreTokenRequest`:
-
-| Parameter         | Type   | Required | Description                           |
-|-------------------|--------|----------|---------------------------------------|
-| client_id         | string | Yes      | Merchant's client ID                  |
-| customer_email    | string | Yes      | Customer's email address              |
-| customer_name     | string | Yes      | Customer's full name                  |
-| customer_mobile   | string | Yes      | Customer's mobile number              |
-
----
-
-#### 📦 Sample Request
-
+**📦 Sample Request**
 ```bash
 curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens \
   -H "Authorization: Bearer {api_token}" \
@@ -285,12 +246,7 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens \
   }'
 ```
 
----
-
-#### ✅ Success Response (201 Created)
-
-The response includes a `redirect_url` field where the customer can enter their card information to complete tokenization.
-
+**✅ Success Response (201 Created)**
 ```json
 {
   "success": true,
@@ -298,12 +254,9 @@ The response includes a `redirect_url` field where the customer can enter their 
 }
 ```
 
-***The returned `redirect_url` should be presented to the customer to complete card entry and tokenization.***
+Redirect the customer to the returned `redirect_url` to complete card entry and tokenization.
 
----
-
-#### ❌ Error Response
-
+**❌ Error Response**
 ```json
 {
   "success": false,
@@ -311,59 +264,44 @@ The response includes a `redirect_url` field where the customer can enter their 
 }
 ```
 
----
-
-#### 🧠 Notes
-
-- A valid Bearer token is required.
-- Requests without proper authentication will return 401 Unauthorized.
-- Requests from unauthorized merchants will return 403 Forbidden.
+**🧠 Notes**
+- A valid Bearer token is required. Requests without proper authentication will return `401 Unauthorized`.
+- Requests from unauthorized merchants will return `403 Forbidden`.
 
 ---
 
-### DELETE `/api/v2/tokens/{token}`
+### DELETE /api/v2/tokens/{token}
 
 Deletes a saved card token.
 
----
+**🔗 URL**
+```
+DELETE /api/v2/tokens/{token}
+```
 
-#### 🔗 URL
-
-`DELETE /api/v2/tokens/{token}`
-
----
-
-#### 📋 Headers
-
-```http
+**📋 Headers**
+```
 Authorization: Bearer {api_token}
 Content-Type: application/json
 Accept: application/json
 ```
 
----
+**📝 Request Parameters**
 
-#### 📝 Request Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| token | string | Yes | Token identifier to delete (path parameter) |
+| client_id | string | Yes | Client ID (query parameter) |
 
-| Parameter | Type   | Required | Description                |
-|-----------|--------|----------|----------------------------|
-| token     | string | Yes      | Token identifier to delete |
-| client_id | string | Yes      | Client ID                  |
-
----
-
-#### 📦 Sample Request
+**📦 Sample Request**
 ```bash
-curl -X DELETE https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}?client_id=Moby00003 \
+curl -X DELETE "https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}?client_id=MOBY00000123" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json"
 ```
 
----
-
-#### ✅ Success Response (200 OK)
-
+**✅ Success Response (200 OK)**
 ```json
 {
   "success": true,
@@ -371,10 +309,7 @@ curl -X DELETE https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}?c
 }
 ```
 
----
-
-#### ❌ Error Response
-
+**❌ Error Response**
 ```json
 {
   "success": false,
@@ -382,68 +317,53 @@ curl -X DELETE https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}?c
 }
 ```
 
----
-
-#### 🧠 Notes
-
-- A valid Bearer token is required.
-- Requests without proper authentication will return 401 Unauthorized.
-- Requests from unauthorized merchants will return 403 Forbidden.
+**🧠 Notes**
+- A valid Bearer token is required. Requests without proper authentication will return `401 Unauthorized`.
+- Requests from unauthorized merchants will return `403 Forbidden`.
 
 ---
 
-### POST `/api/v2/tokens/{token}/charges`
+### POST /api/v2/tokens/{token}/charges
 
 Processes a payment using a previously tokenized card. Supports both 3DS (3-D Secure) and non-3DS flows.
 
----
+**🔗 URL**
+```
+POST /api/v2/tokens/{token}/charges
+```
 
-#### 🔗 URL
-
-`POST /api/v2/tokens/{token}/charges`
-
----
-
-#### 📋 Headers
-
-```http
+**📋 Headers**
+```
 Authorization: Bearer {api_token}
 Content-Type: application/json
 Accept: application/json
 ```
 
----
+**📝 Request Body**
 
-#### 📝 Request Body
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| client_id | string | Yes | Client ID |
+| amount | number | Yes | Amount to charge in MYR (minimum: 0) |
+| order_reference | string | Yes | Unique order reference for this transaction |
+| merchant_reference | string | No | Optional merchant-specific reference |
+| return_url | string | No | URL to redirect after transaction completion |
+| callback_url | string | No | URL to receive transaction webhook notifications |
+| skip_receipt | boolean | No | Whether to skip sending receipt emails |
+| details | string | No | Transaction details or description |
+| custom_data | string | No | Custom metadata for the transaction (JSON string) |
+| 3ds | boolean | Yes | Whether to require 3D Secure authentication (true or false) |
 
-The request body must include the following fields as defined by `StoreTokenChargeRequest`:
-
-| Parameter         | Type    | Required | Description                                                      |
-|-------------------|---------|----------|------------------------------------------------------------------|
-| client_id         | string  | Yes      | Client ID                                                        |
-| amount            | number  | Yes      | Amount to charge (minimum: 0)                                    |
-| order_reference   | string  | Yes      | Unique order reference for this transaction                      |
-| merchant_reference| string  | No       | Optional merchant-specific reference                             |
-| return_url        | string  | No       | URL to redirect after transaction completion                     |
-| callback_url      | string  | No       | URL to receive transaction webhook notifications                 |
-| skip_receipt      | boolean | No       | Whether to skip sending receipt emails                           |
-| details           | string  | No       | Transaction details or description                               |
-| custom_data       | string  | No       | Custom metadata for the transaction (JSON string)                |
-| 3ds               | boolean | Yes      | Whether to require 3D Secure authentication (`true` or `false`)  |
-
----
-
-#### 📦 Sample Request
-
+**📦 Sample Request**
 ```bash
-curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}/charges \
+curl -X POST "https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}/charges" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
-    "client_id": "Moby0003",
+    "client_id": "MOBY00000123",
     "amount": 100.50,
-    "order_reference": "BNPL-REF-123456",
+    "order_reference": "ORDER-REF-123456",
     "merchant_reference": "MERCHANT-REF-7890",
     "return_url": "https://merchant.com/payment-complete",
     "callback_url": "https://merchant.com/webhook",
@@ -454,21 +374,18 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}/cha
   }'
 ```
 
----
+**✅ Success Response (200 OK)**
 
-#### ✅ Success Response (200 OK)
-
-- **If 3DS is enabled (`"3ds": true`)**:
-
+If `3ds` is `true`:
 ```json
 {
   "success": true,
   "redirect_url": "https://secure-3ds-provider.com/authenticate?ref=xyz"
 }
 ```
+Redirect your customer to the `redirect_url` to complete 3DS authentication.
 
-- **If 3DS is disabled (`"3ds": false`)**:
-
+If `3ds` is `false`:
 ```json
 {
   "success": true,
@@ -481,9 +398,9 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}/cha
     "payAt": "2025-02-01",
     "createdAt": "2025-02-01",
     "customer": {
-      "name": "test",
-      "email": "test@Test.com",
-      "phone": "123235"
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "60123456789"
     },
     "transactions": [
       {
@@ -499,10 +416,7 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}/cha
 }
 ```
 
----
-
-#### ❌ Error Response
-
+**❌ Error Response**
 ```json
 {
   "success": false,
@@ -511,74 +425,46 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/tokens/{token}/cha
   "data": null
 }
 ```
-or, with additional data:
-```json
-{
-  "success": false,
-  "error": "Validation error",
-  "message": "The amount field is required.",
-  "data": {
-    "amount": ["The amount field is required."]
-  }
-}
-```
+
+**🧠 Notes**
+- When `3ds` is `true`, redirect the customer to the returned `redirect_url` to complete authentication.
+- When `3ds` is `false`, the response includes the charge data directly.
+- A valid Bearer token is required. Requests without proper authentication will return `401 Unauthorized`.
+- Requests from unauthorized merchants will return `403 Forbidden`.
 
 ---
 
-#### 🧠 Notes
-
-- This endpoint supports both 3DS and non-3DS (frictionless) charges.
-- When 3DS is enabled, the response will include a `redirect_url` for the customer to complete authentication. You must redirect your customer to this URL.
-- When 3DS is disabled, the response will include detailed charge data directly in JSON.
-- A valid Bearer token is required.
-- Requests without proper authentication will return 401 Unauthorized.
-- Requests from unauthorized merchants will return 403 Forbidden.
-
----
-
-### GET `/api/v2/charges/{order_reference}`
+### GET /api/v2/charges/{order_reference}
 
 Checks the status of a previously initiated token charge transaction.
 
----
+**🔗 URL**
+```
+GET /api/v2/charges/{order_reference}
+```
 
-#### 🔗 URL
-
-`GET /api/v2/charges/{order_reference}`
-
----
-
-#### 📋 Headers
-
-```http
+**📋 Headers**
+```
 Authorization: Bearer {api_token}
 Content-Type: application/json
 Accept: application/json
 ```
 
----
+**📝 Request Parameters**
 
-#### 📝 Request Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| order_reference | string | Yes | Order reference used in the original charge (path parameter) |
+| client_id | string | Yes | Client ID (query parameter) |
 
-| Parameter        | Type   | Required | Description                                            |
-|------------------|--------|----------|--------------------------------------------------------|
-| order_reference  | string | Yes      | Buy Now Pay Later reference used in the original charge |
-| client_id        | string | Yes      | Client ID
-
----
-
-#### 📦 Sample Request
-
+**📦 Sample Request**
 ```bash
-curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/BNPL-REF-123456?client_id=Moby00003" \
+curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/ORDER-REF-123456?client_id=MOBY00000123" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json"
 ```
 
----
-
-#### ✅ Success Response (200 OK)
-
+**✅ Success Response (200 OK)**
 ```json
 {
   "success": true,
@@ -600,10 +486,7 @@ curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/BNPL-REF-1
 }
 ```
 
----
-
-#### ❌ Error Response
-
+**❌ Error Response**
 ```json
 {
   "success": false,
@@ -621,63 +504,48 @@ curl -X GET "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/BNPL-REF-1
 }
 ```
 
----
-
-#### 🧠 Notes
-
-- A valid Bearer token is required.
-- Requests without proper authentication will return 401 Unauthorized.
-- Requests from unauthorized merchants will return 403 Forbidden.
+**🧠 Notes**
+- A valid Bearer token is required. Requests without proper authentication will return `401 Unauthorized`.
+- Requests from unauthorized merchants will return `403 Forbidden`.
 
 ---
 
-### POST `/api/v2/charges/{order_reference}/refund`
+### POST /api/v2/charges/{order_reference}/refund
 
-Queues a refund request for a previously successful token charge transaction. The refund request is flagged for asynchronous processing.
+Queues a refund request for a previously successful token charge transaction. The refund is processed asynchronously.
 
----
+**🔗 URL**
+```
+POST /api/v2/charges/{order_reference}/refund
+```
 
-#### 🔗 URL
-
-`POST /api/v2/charges/{order_reference}/refund`
-
----
-
-#### 📋 Headers
-
-```http
+**📋 Headers**
+```
 Authorization: Bearer {api_token}
 Content-Type: application/json
 Accept: application/json
 ```
 
----
+**📝 Request Body**
 
-#### 📝 Request Body
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| amount | number | Yes | Amount to refund (must be less than or equal to the original transaction amount) |
+| client_id | string | Yes | Client ID |
 
-The request body must include the following fields as defined by `RefundTokenChargeRequest`:
-
-| Parameter        | Type   | Required | Description                                                                           |
-|------------------|--------|----------|---------------------------------------------------------------------------------------|
-| amount           | number | Yes      | Amount to refund (must be less than or equal to the original transaction amount)      |
-| client_id        | string | Yes      | Client ID
-
-**Example Request:**
+**📦 Sample Request**
 ```bash
-curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/charges/{order_reference}/refund \
+curl -X POST "https://dev-pay-refactor.mobycheckout.com/api/v2/charges/ORDER-REF-123456/refund" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
     "amount": 100.50,
-    "client_id": "Moby0003"
+    "client_id": "MOBY00000123"
   }'
 ```
 
----
-
-#### ✅ Success Response (201 Created)
-
+**✅ Success Response (201 Created)**
 ```json
 {
   "success": true,
@@ -685,67 +553,60 @@ curl -X POST https://dev-pay-refactor.mobycheckout.com/api/v2/charges/{order_ref
 }
 ```
 
----
+**❌ Error Responses**
 
-#### ❌ Error Responses
+Transaction not found:
+```json
+{
+  "success": false,
+  "error": "Transaction not found",
+  "data": "Transaction not found"
+}
+```
 
-- **Transaction not found:**
-  ```json
-  {
-    "success": false,
-    "error": "Transaction not found",
-    "data": "Transaction not found"
+Unauthorized (403 Forbidden):
+```json
+{
+  "success": false,
+  "error": "Forbidden"
+}
+```
+
+Validation error:
+```json
+{
+  "success": false,
+  "error": "Validation error",
+  "message": "The amount field is required.",
+  "data": {
+    "amount": ["The amount field is required."]
   }
-  ```
+}
+```
 
-- **Unauthorized token ownership (403 Forbidden):**
-  ```json
-  {
-    "success": false,
-    "error": "Forbidden"
-  }
-  ```
-
-- **Validation error:**
-  ```json
-  {
-    "success": false,
-    "error": "Validation error",
-    "message": "The amount field is required.",
-    "data": {
-      "amount": ["The amount field is required."]
-    }
-  }
-  ```
-
----
-
-#### 🧠 Notes
-
-- A valid Bearer token is required.
-- Requests without proper authentication will return 401 Unauthorized.
-- Requests from unauthorized merchants (not owning the transaction/token) will return 403 Forbidden.
-- The refund request is **queued/flagged for processing** (transaction status is set to `processing_refund`).
-- Actual refund fulfillment is handled **asynchronously** via a `DisputeRequest` and may not complete immediately.
-- The refund amount **cannot exceed** the original transaction amount.
+**🧠 Notes**
+- A valid Bearer token is required. Requests without proper authentication will return `401 Unauthorized`.
+- The refund is queued for asynchronous processing and may not complete immediately.
+- The refund amount cannot exceed the original transaction amount.
+- Requests from unauthorized merchants will return `403 Forbidden`.
 
 ---
 
 ## Error Handling
 
-All endpoints may return the following error responses:
+All endpoints may return the following standard error responses:
 
-| Error Code | Description                        |
-|------------|----------------------------------|
-| 400        | Bad Request - Missing or invalid parameters |
-| 401        | Unauthorized - Invalid API token |
-| 403        | Forbidden - Access denied due to ownership or permissions |
-| 404        | Not Found - Transaction or resource not found |
-| 422        | Unprocessable Entity - Request validation failed |
-| 500        | Internal Server Error - Server-side error |
+| HTTP Code | Error | Description |
+|-----------|-------|-------------|
+| 400 | Bad Request | Missing or invalid parameters |
+| 401 | Unauthorized | Invalid or expired API token |
+| 403 | Forbidden | Access denied due to ownership or permissions |
+| 404 | Not Found | Transaction or resource not found |
+| 422 | Unprocessable Entity | Request validation failed |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Server-side error |
 
 Common error response format:
-
 ```json
 {
   "success": false,
@@ -757,9 +618,26 @@ Common error response format:
 
 ## Implementation Notes
 
-- All monetary amounts must be provided as decimal numbers
-- Default currency: MYR (Malaysian Ringgit)
-- Authentication is required for all API routes using a Bearer token
-- The web route for saving cards returns an HTML form rather than JSON data
-- Successful transactions trigger email notifications to both customer and merchant unless `skip_receipt` is set to true
-- For refunds, the refund amount cannot exceed the original transaction amount
+- All monetary amounts must be provided as decimal numbers.
+- Default currency: **MYR (Malaysian Ringgit)**
+- Authentication is required for all API routes using a Bearer token.
+- The web route for saving cards returns an HTML form rather than JSON data.
+- Successful transactions trigger email notifications to both customer and merchant unless `skip_receipt` is set to `true`.
+- For refunds, the refund amount cannot exceed the original transaction amount.
+- Auth tokens expire after **30 minutes**. Implement token refresh logic to handle `401` responses gracefully.
+
+---
+
+## Additional Support
+
+For further assistance, you can reach our support teams:
+
+**Customer Care:**
+- Email: customercare@moby.my
+- Phone: 011 1111 5155
+
+**Merchant Support:**
+- Email: merchantsupport@moby.my
+- Phone: 011 1111 7177
+
+[Return to Home](../README.md)
