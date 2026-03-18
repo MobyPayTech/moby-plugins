@@ -1,6 +1,8 @@
-# MobyPay POS-KIOSK Integration Guide
+# MobyPay POS-KIOSK Integration — API Reference
 
-This guide covers the integration architecture, communication protocols, and API specifications for integrating with the MobyPay Kiosk system.
+> 🚀 **New to this integration?** Start with **[QUICKSTART.md](QUICKSTART.md)** — get a working POS connection on any platform in under 5 minutes, with full copy-paste code for Android, iOS, and Windows.
+>
+> This document is the **complete API reference** covering all message formats, security model, and architecture details.
 
 ---
 
@@ -14,7 +16,6 @@ This guide covers the integration architecture, communication protocols, and API
 - [API Documentation](#api-documentation)
 - [Integration Workflow](#integration-workflow)
 - [Network Configuration](#network-configuration)
-- [Platform Integration Examples](#platform-integration-examples)
 
 ---
 
@@ -143,8 +144,6 @@ All messages are signed using HMAC-SHA256. The signature is calculated over the 
        │ Connect to 127.0.0.1:8080 (same device)
        │           OR
        │ Connect to <kiosk-ip>:8080 (different device)
-       │
-  [POS Client]
 ```
 
 ### Component Responsibilities
@@ -167,21 +166,12 @@ All messages are signed using HMAC-SHA256. The signature is calculated over the 
 
 ## 💳 Payment Methods
 
-### 1. Card Payment
-Direct card transactions through the POS terminal. Supports credit and debit cards with real-time authorization.
-**Payment Mode:** `card`
-
-### 2. Buy Now Pay Later (BNPL)
-Installment-based payment options with flexible terms and instant approval.
-**Payment Mode:** `bnpl`
-
-### 3. DuitNow QR
-Malaysia's national QR payment system supporting bank and e-wallet integration.
-**Payment Mode:** `duitnow_qr`
-
-### 4. Installment Payment Plans (IPP)
-Available for MobyPay BNPL account holders. Interactive plan selection via kiosk.
-**Payment Mode:** `ipp`
+| Payment Mode | Description |
+|---|---|
+| `card` | Direct card-present transaction — credit and debit with real-time authorization |
+| `bnpl` | Buy Now Pay Later — installment-based, flexible terms, instant approval |
+| `duitnow_qr` | DuitNow QR — Malaysia national QR payment, bank and e-wallet integration |
+| `ipp` | Installment Payment Plans — available for MobyPay BNPL holders, interactive plan selection |
 
 ---
 
@@ -189,7 +179,7 @@ Available for MobyPay BNPL account holders. Interactive plan selection via kiosk
 
 ### Message Framing
 
-All messages use **newline-delimited JSON**. Each message is a single JSON object followed by a newline character (`\n`). This newline is the message frame delimiter and **must always be appended** when sending.
+All messages use **newline-delimited JSON**. Each message is a single JSON object followed by a newline character (`\n`). This newline is the message frame delimiter and **must always be appended** when sending, and read with a `readLine()`-style call on the receiver.
 
 ```
 <JSON object>\n
@@ -197,7 +187,7 @@ All messages use **newline-delimited JSON**. Each message is a single JSON objec
 
 ### Message Envelope
 
-All messages follow this secure envelope:
+All messages (both directions) use this signed envelope structure:
 
 ```json
 {
@@ -212,13 +202,15 @@ All messages follow this secure envelope:
 }
 ```
 
-> The `signature` is computed over the `payload` object only — keys sorted alphabetically, compact JSON separators, UTF-8 encoded.
+> The `signature` is computed over the `payload` object only — keys sorted alphabetically, compact separators (`,` and `:`), UTF-8 encoded. See [QUICKSTART.md](QUICKSTART.md) for per-platform signing code.
 
 ---
 
 ### Request Types (Kiosk → POS)
 
 #### 1. Transaction Request
+
+Initiates a payment. Sent by the Kiosk when the operator triggers a payment.
 
 ```json
 {
@@ -241,8 +233,12 @@ All messages follow this secure envelope:
 | `amount` | number | Transaction amount in RM |
 | `payment_mode` | string | One of: `card`, `bnpl`, `duitnow_qr`, `ipp` |
 | `kiosk_id` | string | Identifier of the Kiosk terminal |
+| `timestamp` | string | Milliseconds since epoch (string) |
+| `nonce` | string | UUID v4, unique per message |
 
 #### 2. Cancel Transaction
+
+Cancels an in-progress transaction. POS must ACK and abort any in-flight hardware operation.
 
 ```json
 {
@@ -258,6 +254,8 @@ All messages follow this secure envelope:
 ```
 
 #### 3. IPP Plan Selection
+
+Sent by Kiosk after the user selects an installment plan from the options provided by the POS.
 
 ```json
 {
@@ -277,7 +275,9 @@ All messages follow this secure envelope:
 
 ### Response Types (POS → Kiosk)
 
-#### 1. Acknowledgment
+#### 1. Acknowledgment (ACK)
+
+Sent immediately by POS upon receiving any request. Confirms receipt before processing begins.
 
 ```json
 {
@@ -292,12 +292,14 @@ All messages follow this secure envelope:
 }
 ```
 
-| Status | Meaning |
+| `status` | Meaning |
 |---|---|
 | `received` | Request has been received |
 | `processing` | Request is being processed |
 
 #### 2. Transaction Result
+
+Final outcome of the transaction. Sent by POS after the payment hardware/SDK responds.
 
 ```json
 {
@@ -314,12 +316,20 @@ All messages follow this secure envelope:
 }
 ```
 
-| Status | Meaning |
+| `status` | Meaning |
 |---|---|
 | `success` | Transaction completed successfully |
 | `approved` | Transaction approved (alternative to success) |
 | `failed` | Transaction failed |
-| `ipp_plans` | IPP plans available — Kiosk must display and let user select |
+| `ipp_plans` | IPP plans available — Kiosk will display them for user selection |
+
+**Optional result fields by payment mode:**
+
+| Field | Present when | Description |
+|---|---|---|
+| `authorization_code` | Card / BNPL success | Auth code from payment network |
+| `card_last4` | Card success | Last 4 digits of card number |
+| `plans` | status = `ipp_plans` | Array of installment plan objects (see IPP below) |
 
 **IPP Plans Response:**
 
@@ -351,6 +361,8 @@ All messages follow this secure envelope:
 
 #### 3. Error Response
 
+Sent when the POS cannot process the request (hardware error, configuration issue, etc.).
+
 ```json
 {
   "payload": {
@@ -376,13 +388,9 @@ Kiosk (Server)                    POS Terminal (Client)
      │◄──────────── TCP Connect ───────────│
      │                                     │
      ├──────── Transaction Request ───────►│
-     │                                     │
-     │◄───────── Acknowledgment (ACK) ─────│
-     │                                     │
+     │◄───────── ACK (processing) ─────────│
      │         [POS processes payment]      │
-     │                                     │
      │◄───── Transaction Result ───────────│
-     │                                     │
      ├──────── Display Result ────────────►│
 ```
 
@@ -392,35 +400,35 @@ Kiosk (Server)                    POS Terminal (Client)
 Kiosk (Server)                    POS Terminal (Client)
      │                                     │
      ├──── Transaction Request (IPP) ─────►│
-     │◄──── Acknowledgment (ACK) ──────────│
+     │◄──── ACK (processing) ──────────────│
      │◄──── Transaction Result (ipp_plans)─│
      ├──── Display Plans to User ─────────►│
      │      (User selects plan)             │
      ├──── IPP Plan Selection ────────────►│
-     │◄──── Acknowledgment (ACK) ──────────│
+     │◄──── ACK (processing) ──────────────│
      │◄──── Transaction Result (success) ──│
      ├──── Display Result ────────────────►│
 ```
 
-### Error Handling Flow
+### Cancellation Flow
 
 ```
 Kiosk (Server)                    POS Terminal (Client)
      │                                     │
-     ├──── Transaction Request ───────────►│
-     │◄──── Error Response ────────────────│
-     ├──── Display Error ─────────────────►│
+     ├──── Cancel Transaction ────────────►│
+     │◄──── ACK (received) ────────────────│
+     │      [POS aborts hardware txn]       │
 ```
 
 ### Connection Lifecycle & Reconnection
 
 The POS terminal (client) is responsible for maintaining the connection:
 
-1. **On startup:** Connect to the Kiosk server (127.0.0.1 for same device, or Kiosk IP for remote).
-2. **Keep-alive (recommended):** Send a lightweight ping message every 30 seconds to detect stale connections early.
+1. **On startup:** Connect to the Kiosk server (`127.0.0.1` for same device, or Kiosk IP for remote).
+2. **Keep-alive (recommended):** Detect stale connections by monitoring read timeouts or sending a lightweight ping every 30 seconds.
 3. **On disconnect:** Implement exponential backoff retry — e.g., 1s → 2s → 4s → 8s, up to a max of 30s between retries.
-4. **Mid-transaction disconnect:** If the connection drops during a transaction, the POS should attempt reconnect and send an `error` result for the in-flight `txn_id` once reconnected, so the Kiosk can reset its state.
-5. **Kiosk side:** Clean up socket state when a client disconnects; allow reconnection cleanly without requiring a server restart.
+4. **Mid-transaction disconnect:** Send an `error` result for the in-flight `txn_id` once reconnected, so the Kiosk can reset its state.
+5. **Kiosk side:** Clean up socket state when a client disconnects; allow reconnection without requiring a server restart.
 
 ---
 
@@ -441,9 +449,9 @@ The POS terminal (client) is responsible for maintaining the connection:
 | Same LAN | e.g. `192.168.1.100` | Reserve IP via DHCP or set static assignment |
 | Internet | Public IP or hostname | Use TLS tunnel or VPN; open port in firewall |
 
-### Android Network Security
+### Android Network Security {#android-network-security}
 
-For Android apps targeting API 28+, if connecting over cleartext TCP (non-TLS), add a network security config:
+For Android apps targeting API 28+, add a network security config to allow cleartext TCP to the Kiosk IP:
 
 ```xml
 <!-- res/xml/network_security_config.xml -->
@@ -454,20 +462,18 @@ For Android apps targeting API 28+, if connecting over cleartext TCP (non-TLS), 
 </network-security-config>
 ```
 
-Reference it in your `AndroidManifest.xml`:
+Reference it in `AndroidManifest.xml`:
+
 ```xml
-<application
-  android:networkSecurityConfig="@xml/network_security_config"
-  ...>
+<application android:networkSecurityConfig="@xml/network_security_config" ...>
 ```
 
-> For same-device (127.0.0.1) connections, cleartext is acceptable. For internet deployments, use TLS.
+> For same-device (`127.0.0.1`) connections, cleartext is acceptable. For internet deployments, use TLS.
 
 ### iOS Network Configuration
 
 iOS apps using the `Network` framework for TCP connections may need:
 - `NSLocalNetworkUsageDescription` in `Info.plist` for LAN discovery
-- Bonjour services declaration for same-network browsing (if using mDNS for discovery)
 - For enterprise/kiosk deployments (not App Store), no additional restrictions apply
 
 ### Production Configuration
@@ -483,265 +489,5 @@ iOS apps using the `Network` framework for TCP connections may need:
 
 ---
 
-## 💻 Platform Integration Examples
-
-The core TCP protocol is identical on all platforms. Only the socket API differs.
-
-### Android (Kotlin)
-
-```kotlin
-import java.net.Socket
-import java.io.*
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
-import org.json.JSONObject
-import java.util.UUID
-
-class KioskTcpClient(
-    private val kioskHost: String,  // "127.0.0.1" (same device) or IP/hostname (remote)
-    private val kioskPort: Int = 8080,
-    private val secret: String = "YOUR-PRODUCTION-SECRET-KEY",
-    private val kioskId: String = "KIOSK001"
-) {
-    private var socket: Socket? = null
-    private var writer: PrintWriter? = null
-    private var reader: BufferedReader? = null
-
-    fun connect() {
-        socket = Socket(kioskHost, kioskPort)
-        writer = PrintWriter(socket!!.getOutputStream(), true)
-        reader = BufferedReader(InputStreamReader(socket!!.getInputStream()))
-    }
-
-    fun sendPayment(txnId: String, amount: Double, paymentMode: String): String {
-        val payload = JSONObject().apply {
-            put("type", "transaction_request")
-            put("txn_id", txnId)
-            put("amount", amount)
-            put("payment_mode", paymentMode)
-            put("kiosk_id", kioskId)
-            put("timestamp", System.currentTimeMillis().toString())
-            put("nonce", UUID.randomUUID().toString())
-        }
-        val message = buildSignedMessage(payload)
-        writer?.println(message)           // println appends \n (the required frame delimiter)
-        return reader?.readLine() ?: ""    // readLine reads until \n
-    }
-
-    private fun sign(payload: JSONObject): String {
-        // Build canonical JSON: keys sorted, compact separators
-        val sorted = payload.keys().asSequence().sorted()
-            .joinToString(",", "{", "}") { key ->
-                val v = payload.get(key)
-                val valStr = when (v) {
-                    is String -> "\"$v\""
-                    is Boolean -> v.toString()
-                    else -> v.toString()
-                }
-                "\"$key\":$valStr"
-            }
-        val mac = Mac.getInstance("HmacSHA256")
-        mac.init(SecretKeySpec(secret.toByteArray(Charsets.UTF_8), "HmacSHA256"))
-        return mac.doFinal(sorted.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
-    }
-
-    private fun buildSignedMessage(payload: JSONObject): String {
-        val envelope = JSONObject()
-        envelope.put("payload", payload)
-        envelope.put("signature", sign(payload))
-        return envelope.toString()
-    }
-
-    fun disconnect() { socket?.close() }
-}
-
-// Usage — same code works for same-device and remote
-fun example() {
-    // Same device
-    val client = KioskTcpClient(kioskHost = "127.0.0.1")
-    // Different device on LAN
-    // val client = KioskTcpClient(kioskHost = "192.168.1.100")
-    // Over internet
-    // val client = KioskTcpClient(kioskHost = "pos.merchant.com")
-
-    client.connect()
-    val txnId = "TXN${System.currentTimeMillis()}"
-    val response = client.sendPayment(txnId, 50.0, "card")
-    println("POS response: $response")
-    client.disconnect()
-}
-```
-
-### iOS / Swift
-
-```swift
-import Network
-import Foundation
-import CryptoKit
-
-class KioskTcpClient {
-    private var connection: NWConnection?
-    private let kioskHost: String    // "127.0.0.1" (same device) or IP/hostname (remote)
-    private let kioskPort: UInt16
-    private let secret: String
-    private let kioskId: String
-
-    init(host: String = "127.0.0.1", port: UInt16 = 8080,
-         secret: String = "YOUR-PRODUCTION-SECRET-KEY",
-         kioskId: String = "KIOSK001") {
-        self.kioskHost = host
-        self.kioskPort = port
-        self.secret = secret
-        self.kioskId = kioskId
-    }
-
-    func connect(onReady: @escaping () -> Void) {
-        let endpoint = NWEndpoint.hostPort(
-            host: NWEndpoint.Host(kioskHost),
-            port: NWEndpoint.Port(rawValue: kioskPort)!
-        )
-        connection = NWConnection(to: endpoint, using: .tcp)
-        connection?.stateUpdateHandler = { [weak self] state in
-            if case .ready = state { onReady() }
-        }
-        connection?.start(queue: .global())
-    }
-
-    func sendPayment(txnId: String, amount: Double, paymentMode: String) {
-        var payload: [String: Any] = [
-            "type": "transaction_request",
-            "txn_id": txnId,
-            "amount": amount,
-            "payment_mode": paymentMode,
-            "kiosk_id": kioskId,
-            "timestamp": String(Int(Date().timeIntervalSince1970 * 1000)),
-            "nonce": UUID().uuidString
-        ]
-        let signature = sign(payload: payload)
-        let envelope: [String: Any] = ["payload": payload, "signature": signature]
-        if var data = try? JSONSerialization.data(withJSONObject: envelope) {
-            data.append(contentsOf: "\n".utf8)   // append newline frame delimiter
-            connection?.send(content: data, completion: .idempotent)
-        }
-    }
-
-    private func sign(payload: [String: Any]) -> String {
-        let sorted = payload.keys.sorted().map { key -> String in
-            let val = payload[key]!
-            let valStr: String
-            switch val {
-            case let s as String: valStr = "\"\(s)\""
-            case let b as Bool: valStr = b ? "true" : "false"
-            default: valStr = "\(val)"
-            }
-            return "\"\(key)\":\(valStr)"
-        }.joined(separator: ",")
-        let json = "{\(sorted)}"
-        let key = SymmetricKey(data: Data(secret.utf8))
-        let sig = HMAC<SHA256>.authenticationCode(for: Data(json.utf8), using: key)
-        return sig.map { String(format: "%02x", $0) }.joined()
-    }
-}
-
-// Usage — same code, just change the host
-// Same device:     KioskTcpClient(host: "127.0.0.1")
-// LAN:             KioskTcpClient(host: "192.168.1.100")
-// Internet:        KioskTcpClient(host: "pos.merchant.com")
-```
-
-### Windows / C# (.NET)
-
-```csharp
-using System;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.Json;
-using System.Security.Cryptography;
-using System.Collections.Generic;
-using System.IO;
-
-public class KioskTcpClient : IDisposable
-{
-    private TcpClient? _client;
-    private StreamReader? _reader;
-    private StreamWriter? _writer;
-
-    private readonly string _kioskHost;  // "127.0.0.1" (same device) or IP/hostname (remote)
-    private readonly int _kioskPort;
-    private readonly string _secret;
-    private readonly string _kioskId;
-
-    public KioskTcpClient(string host = "127.0.0.1", int port = 8080,
-                          string secret = "YOUR-PRODUCTION-SECRET-KEY",
-                          string kioskId = "KIOSK001")
-    {
-        _kioskHost = host;
-        _kioskPort = port;
-        _secret = secret;
-        _kioskId = kioskId;
-    }
-
-    public void Connect()
-    {
-        _client = new TcpClient(_kioskHost, _kioskPort);
-        var stream = _client.GetStream();
-        _reader = new StreamReader(stream);
-        _writer = new StreamWriter(stream) { AutoFlush = true };
-    }
-
-    public string SendPayment(string txnId, double amount, string paymentMode)
-    {
-        var payload = new Dictionary<string, object>
-        {
-            ["type"] = "transaction_request",
-            ["txn_id"] = txnId,
-            ["amount"] = amount,
-            ["payment_mode"] = paymentMode,
-            ["kiosk_id"] = _kioskId,
-            ["timestamp"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
-            ["nonce"] = Guid.NewGuid().ToString()
-        };
-        var signature = Sign(payload);
-        var envelope = new { payload, signature };
-        var json = JsonSerializer.Serialize(envelope);
-        _writer!.WriteLine(json);          // WriteLine appends \n (the required frame delimiter)
-        return _reader!.ReadLine() ?? "";  // ReadLine reads until \n
-    }
-
-    private string Sign(Dictionary<string, object> payload)
-    {
-        var sorted = new SortedDictionary<string, object>(payload);
-        var json = JsonSerializer.Serialize(sorted, new JsonSerializerOptions { WriteIndented = false });
-        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_secret));
-        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(json));
-        return BitConverter.ToString(hash).Replace("-", "").ToLower();
-    }
-
-    public void Dispose() { _client?.Dispose(); }
-}
-
-// Usage — same code, just change the host:
-// Same device:   new KioskTcpClient(host: "127.0.0.1")
-// LAN:           new KioskTcpClient(host: "192.168.1.100")
-// Internet:      new KioskTcpClient(host: "pos.merchant.com")
-
-class Program
-{
-    static void Main()
-    {
-        using var client = new KioskTcpClient(host: "127.0.0.1");
-        client.Connect();
-        var txnId = $"TXN{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-        var response = client.SendPayment(txnId, 50.0, "card");
-        Console.WriteLine($"POS response: {response}");
-    }
-}
-```
-
-### Python (Reference / Testing)
-
-See `kiosk.py` in this repository for the full reference server implementation, and `TESTING.md` for a minimal Python POS client example.
-
----
-
-*For installation, testing procedures, and troubleshooting, refer to [TESTING.md](TESTING.md)*
+*For platform-specific integration code → [QUICKSTART.md](QUICKSTART.md)*
+*For testing procedures and troubleshooting → [TESTING.md](TESTING.md)*
