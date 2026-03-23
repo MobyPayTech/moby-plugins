@@ -2,23 +2,31 @@
 
 This guide covers testing procedures using the `kiosk.py` reference implementation. It includes installation, usage, manual testing, and troubleshooting.
 
+---
+
 ## 📋 Table of Contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Running the Kiosk Server](#running-the-kiosk-server)
 - [Interactive Menu](#interactive-menu)
-- [Manual Testing](#manual-testing)
 - [Testing Scenarios](#testing-scenarios)
 - [Connection Testing](#connection-testing)
 - [Security Testing](#security-testing)
 - [Troubleshooting](#troubleshooting)
+- [Example POS Test Client](#example-pos-test-client)
+
+---
 
 ## Requirements
 
 - Python 3.7 or higher
-- Network connectivity between kiosk and POS terminals
+- Network connectivity between Kiosk and POS terminals (or same device — see below)
 - Open TCP port for communication (default: 8080)
+
+> **Same-device testing:** If both the Kiosk server and your POS test client run on the same machine, use `127.0.0.1` as the connection address. No network setup is needed.
+
+---
 
 ## Installation
 
@@ -26,248 +34,126 @@ This guide covers testing procedures using the `kiosk.py` reference implementati
 
 **macOS:**
 ```bash
-# Using Homebrew (recommended)
 brew install python3
-
-# Or download from python.org
-# Visit: https://www.python.org/downloads/
+# Or download from https://www.python.org/downloads/
 ```
 
 **Windows:**
 ```bash
-# Download installer from python.org
-# Visit: https://www.python.org/downloads/
+# Download installer from https://www.python.org/downloads/
 # Make sure to check "Add Python to PATH" during installation
 ```
 
 **Linux (Ubuntu/Debian):**
 ```bash
-sudo apt update
-sudo apt install python3 python3-pip
+sudo apt update && sudo apt install python3 python3-pip
 ```
 
 **Linux (CentOS/RHEL):**
 ```bash
-sudo yum install python3 python3-pip
-# or for newer versions:
 sudo dnf install python3 python3-pip
 ```
 
 ### 2. Verify Python Installation
 
 ```bash
-python3 --version
-# Should show Python 3.7.x or higher
+python3 --version  # Should show Python 3.7.x or higher
 ```
 
-### 3. Clone/Download the Project
+### 3. Get the Files
 
 ```bash
-# If using git
-git clone <repository-url>
-cd pos-kiosk-integration
-
-# Or download and extract the files to this directory
+git clone https://github.com/MobyPayTech/moby-plugins.git
+cd moby-plugins/pos-kiosk-integration
 ```
 
 ### 4. Dependencies
 
-The kiosk system uses only Python standard library modules:
-- `socket` - TCP communication
-- `json` - Message formatting
-- `threading` - Concurrent connection handling
-- `hashlib` & `hmac` - Security and message signing
-- `uuid` - Nonce generation
-- `datetime` - Timestamp validation
+No external packages required. The kiosk system uses only Python standard library modules: `socket`, `json`, `threading`, `hashlib`, `hmac`, `uuid`, `datetime`.
 
-No external packages need to be installed.
+---
 
 ## Running the Kiosk Server
 
-### Starting the Server
+```bash
+cd pos-kiosk-integration
+python3 kiosk.py
+```
 
-1. **Navigate to the project directory:**
-   ```bash
-   cd pos-kiosk-integration
-   ```
+When prompted:
+```
+Enter port (default 8080): [Press Enter for default]
+```
 
-2. **Run the kiosk application:**
-   ```bash
-   python3 kiosk.py
-   ```
+On startup you will see the Kiosk's listening address:
+```
+🚀 Server started on 192.168.1.100:8080
+📱 Connect your POS terminal to: 192.168.1.100:8080
+```
 
-3. **Configure the server:**
-   ```
-   Enter port (default 8080): [Press Enter for default or enter custom port]
-   ```
+> **Same-device testing:** When your POS test client runs on the same machine, connect to `127.0.0.1:8080` regardless of the IP shown above.
 
-4. **Server startup confirmation:**
-   ```
-   🚀 Server started on 192.168.1.100:8080
-   📱 Connect your POS terminal to: 192.168.1.100:8080
-   ```
-
-The server is now ready to accept POS terminal connections.
+---
 
 ## Interactive Menu
-
-Once the server is running, you'll see the following menu:
 
 ```
 📋 Available Commands:
 1. 💳 Card Payment
 2. 🛒 Buy Now Pay Later (BNPL)
 3. 📱 DuitNow QR
-4. 🏦 Internet Banking (IPP)
+4. 🏦 Installment Payment Plan (IPP)
 5. 🚫 Cancel Transaction
 6. ℹ️  Show Status
 7. 🔴 Exit
 ```
 
-### Menu Options Explained
-
-- **1. Card Payment**: Initiate a card payment transaction
-- **2. BNPL**: Initiate a Buy Now Pay Later transaction
-- **3. DuitNow QR**: Initiate a DuitNow QR payment
-- **4. IPP**: Initiate an Installment Payment Plan transaction
-- **5. Cancel**: Cancel the current active transaction
-- **6. Status**: Display current server and connection status
-- **7. Exit**: Shut down the server and exit
-
-## Manual Testing
-
-### Basic Card Payment Test
-
-1. **Start the server:**
-   ```bash
-   python3 kiosk.py
-   ```
-
-2. **When prompted for port, press Enter** (to use default 8080)
-
-3. **Select option 1** (Card Payment)
-
-4. **Enter an amount when prompted:**
-   ```
-   Enter amount (RM): 25.50
-   ```
-
-5. **Expected output:**
-   ```
-   📤 Sending card payment request for RM25.50
-   🆔 Transaction ID: TXN1705123456789
-   ✅ Payment request sent to POS terminal
-   ```
-
-6. **Wait for POS response** (in a real scenario, this would come from a connected POS terminal)
-
-### Payment Method Test Sequence
-
-Test all payment methods in sequence:
-
-```
-1. Card Payment (amount: 10.00)
-   - Select option 1
-   - Enter: 10.00
-   - Verify: Transaction ID generated
-
-2. BNPL (amount: 20.00)
-   - Select option 2
-   - Enter: 20.00
-   - Verify: Correct payment mode sent
-
-3. DuitNow QR (amount: 15.50)
-   - Select option 3
-   - Enter: 15.50
-   - Verify: DuitNow QR request sent
-
-4. IPP (amount: 100.00)
-   - Select option 4
-   - Enter: 100.00
-   - Wait for plan selection if POS responds with plans
-```
-
-### Transaction Cancellation Test
-
-1. **Initiate a payment:**
-   ```
-   Select option (1-7): 1
-   Enter amount (RM): 50.00
-   ```
-
-2. **Before POS responds, select option 5:**
-   ```
-   Select option (1-7): 5
-   ```
-
-3. **Expected output:**
-   ```
-   🚫 Cancelling transaction: TXN1705123456789
-   ✅ Cancel request sent to POS terminal
-   ```
-
-### Status Display Test
-
-1. **Select option 6** from the main menu
-
-2. **Expected output:**
-   ```
-   📊 Status:
-   🔗 Connected POS terminals: 1
-   🆔 Current transaction: TXN1705123456789
-   👂 Listening for responses: True
-   🏪 Kiosk ID: KIOSK001
-   ```
+---
 
 ## Testing Scenarios
 
-### Scenario 1: Single POS Connection
+### Scenario 1: Same-Device Test (Kiosk + POS on one machine)
 
-**Setup:**
-1. Start kiosk server (port 8080)
-2. Connect one POS terminal to the server
+This is the quickest way to verify the integration without any network setup.
 
-**Test Steps:**
-1. Send card payment (RM 25.00)
-2. POS should acknowledge with "processing" status
-3. POS should respond with transaction result
-4. Verify status display shows 1 connected terminal
+1. Start the Kiosk server: `python3 kiosk.py`
+2. In a **second terminal**, run the Python POS test client (see [Example POS Test Client](#example-pos-test-client)) with `host = "127.0.0.1"`
+3. From the Kiosk menu, select option **1 (Card Payment)** and enter an amount
+4. The test client should receive the request, send an ACK, then send a success result
+5. The Kiosk should display the payment result
 
-**Expected Results:**
-- Message flow completes without errors
-- Transaction ID is generated correctly
-- Status is updated in real-time
+### Scenario 2: LAN Test (Kiosk + POS on different devices)
 
-### Scenario 2: Multiple POS Connections
+1. Note the IP address shown when the Kiosk server starts (e.g. `192.168.1.100:8080`)
+2. On the POS device, run the test client with `host = "192.168.1.100"`
+3. Verify the Kiosk shows **"🔗 Client connected from ..."** in its output
+4. Test all payment methods
 
-**Setup:**
-1. Start kiosk server (port 8080)
-2. Connect multiple POS terminals to the server
+### Scenario 3: Internet Test (remote POS)
 
-**Test Steps:**
-1. Send payment request
-2. Verify broadcast to all connected terminals
-3. Handle responses from multiple terminals
+1. Ensure the Kiosk's port 8080 is accessible from the internet (port forward or public IP)
+2. On the remote POS, run the test client with `host = "<kiosk-public-ip>"`
+3. Verify connectivity and test all payment methods
 
-**Expected Results:**
-- Status displays correct number of connected terminals
-- Requests are broadcast to all terminals
-- Each terminal can respond independently
+> For internet deployments, wrap the connection in TLS or a VPN in production. Raw TCP over the internet is unencrypted.
 
-### Scenario 3: IPP Plan Selection
+### Scenario 4: Card Payment
 
-**Setup:**
-1. Start kiosk server
-2. Connect POS terminal capable of IPP
+1. Start Kiosk server
+2. Connect POS test client (any topology)
+3. Select option **1** → enter amount e.g. `25.50`
+4. Expected Kiosk output:
+```
+📤 Sending card payment request for RM25.50
+🆔 Transaction ID: TXN1705123456789
+✅ Payment request sent to POS terminal
+```
 
-**Test Steps:**
-1. Select option 4 (IPP Payment)
-2. Enter amount (e.g., 100.00)
-3. Wait for POS to respond with available plans
-4. Display and select from available plans
-5. Verify plan selection is sent back
+### Scenario 5: IPP Plan Selection
 
-**Expected Results:**
+1. Connect POS test client that supports IPP plan responses
+2. Select option **4 (IPP)** → enter amount e.g. `100.00`
+3. POS responds with available plans:
 ```
 💰 Amount: RM100.00
 📋 Available Installment Plans:
@@ -276,227 +162,130 @@ Test all payment methods in sequence:
    Frequency: Monthly
    Total Installments: 3
    Installment Details:
-     #1: RM35.00 on 2024-02-15
-       Fee: RM1.50 (1.5%)
-     #2: RM35.00 on 2024-03-15
-       Fee: RM1.50 (1.5%)
-     #3: RM35.00 on 2024-04-15
-       Fee: RM1.50 (1.5%)
-
-Select plan (1-3) or 'q' to quit: 1
-✅ Selected Plan: IPP_3M
-📤 Sending plan selection: IPP_3M
-✅ Plan selection sent to terminal
+     #1: RM35.00 on 2024-02-15  Fee: RM1.50 (1.5%)
+     #2: RM35.00 on 2024-03-15  Fee: RM1.50 (1.5%)
+     #3: RM35.00 on 2024-04-15  Fee: RM1.50 (1.5%)
+Select plan (1-3) or 'q' to quit:
 ```
 
-### Scenario 4: Transaction with Various Amounts
+### Scenario 6: Transaction Cancellation
 
-Test transactions with different amount ranges:
+1. Initiate a payment (e.g. option 1, amount 50.00)
+2. Before the POS responds, select option **5 (Cancel)**
+3. Expected output:
+```
+🚫 Cancelling transaction: TXN1705123456789
+✅ Cancel request sent to POS terminal
+```
 
-| Amount | Purpose | Notes |
-|--------|---------|-------|
-| 0.01 | Minimum | Test handling of smallest amount |
-| 10.00 | Small | Typical small transaction |
-| 99.99 | Standard | Most common transaction size |
-| 999.99 | Large | Test larger amounts |
-| 5000.00 | Maximum | Test handling of max amounts |
+### Scenario 7: Amount Edge Cases
+
+| Amount | Purpose |
+|---|---|
+| 0.01 | Minimum — smallest valid amount |
+| 10.00 | Small transaction |
+| 99.99 | Standard transaction |
+| 999.99 | Large transaction |
+| 5000.00 | Maximum — verify upper bound handling |
+
+---
 
 ## Connection Testing
 
-### Check Server Status
+### Verify Port is Open
 
-**Using telnet (available on most systems):**
 ```bash
+# Using telnet
 telnet <kiosk-ip> 8080
 
-# Expected response:
-# Connected to <kiosk-ip>
-# Escape character is '^]'.
-```
-
-**Using netcat (if available):**
-```bash
+# Using netcat
 nc -zv <kiosk-ip> 8080
 
-# Expected response:
-# Connection to <kiosk-ip> port 8080 [tcp/*] succeeded!
+# Same-device check
+nc -zv 127.0.0.1 8080
 ```
 
-### Verify Network Connectivity
+### Check Connectivity
 
 ```bash
-# Ping the kiosk server
 ping <kiosk-ip>
-
-# Expected response:
-# PING <kiosk-ip> (<ip-address>): 56 data bytes
-# 64 bytes from <ip-address>: icmp_seq=0 ttl=64 time=2.123 ms
 ```
 
-### Monitor Live Connections
+### View Live Connections
 
-While the kiosk server is running, you can:
-1. Select option 6 (Show Status) to see connected terminals
-2. Check console output for connection events:
-   ```
-   🔗 Client connected from 192.168.1.50:54321
-   📨 Received from 192.168.1.50: {...}
-   🔌 Client 192.168.1.50 disconnected
-   ```
+From the Kiosk interactive menu, select **option 6 (Show Status)**:
+```
+📊 Status:
+🔗 Connected POS terminals: 1
+🆔 Current transaction: TXN1705123456789
+👂 Listening for responses: True
+🏪 Kiosk ID: KIOSK001
+```
+
+---
 
 ## Security Testing
 
-The system automatically validates the following security aspects:
+The system automatically validates these security aspects on every message:
 
 ### 1. Message Signature Validation
 
-- All received messages are verified using HMAC-SHA256
-- The signature is calculated over the sorted payload JSON
+All received messages are verified using HMAC-SHA256.
+
+- POS terminals must use the shared secret `POS-KIOSK-SECRET-KEY-2024` (for testing; replace in production)
 - Invalid signatures trigger security validation failures
 
-**Test:** POS Terminal should use the shared secret `POS-KIOSK-SECRET-KEY-2024` when signing messages.
-
-### 2. Nonce Validation
-
-- Each message includes a unique UUID v4 nonce
-- Nonces are tracked to prevent replay attacks
-- Duplicate nonces are rejected
-
-**Test Output:**
+**Expected output on valid signature:**
 ```
 🔐 Signature verification PASSED:
    ✅ Signature matches expected value
    📨 Signature: a1b2c3d4e5f6...xxxxxxxx
 ```
 
+**Expected output on invalid signature:**
+```
+🔐 Signature verification FAILED:
+   📨 Received signature: xxxx...
+   🔑 Expected signature: yyyy...
+🔒 Security validation failed: Invalid signature
+```
+
+### 2. Nonce Validation
+
+Each message uses a unique UUID v4 nonce. Duplicate nonces are rejected.
+
 ### 3. Timestamp Validation
 
-- Timestamps must be within a 60-second window
-- Timestamps are in milliseconds since epoch
-- Requests outside the window are rejected
+Timestamps must be within a 60-second window.
 
-**Test Output:**
 ```
 🕐 Timestamp validation - Request: 1705123456789, Current: 1705123458000, Diff: 1211ms
 ✅ Timestamp valid: Within 60 second window
 ```
 
-### Security Failure Examples
-
-**Invalid Signature:**
-```
-🔐 Signature verification FAILED:
-   📨 Received signature: xxxx...
-   🔑 Expected signature: yyyy...
-   ❌ Signatures match: False
-🔒 Security validation failed: Invalid signature
-```
-
-**Expired Timestamp:**
+**Expired timestamp:**
 ```
 ❌ Timestamp failed: Request too old/new (diff: 65000ms > 60000ms)
 🔒 Security validation failed: Request expired or invalid timestamp
 ```
 
+---
+
 ## Troubleshooting
 
-### Common Issues
+| Problem | Error | Solution |
+|---|---|---|
+| Port in use | `[Errno 48] Address already in use` | Run `lsof -i :8080` to find the process and kill it, or use a different port |
+| Permission denied | `[Errno 13] Permission denied` | Use a port > 1024; avoid privileged ports |
+| No POS connection | `❌ No POS terminals connected` | Verify IP/port, check firewall, run `ping <kiosk-ip>`, test port with telnet/nc |
+| Signature failure | `🔒 Security validation failed: Invalid signature` | Ensure both sides use the same shared secret; verify JSON is UTF-8 and keys are sorted |
+| Invalid JSON | `❌ JSON decode error` | Verify message ends with `\n`; validate JSON format; check for encoding issues |
+| Clock drift | `Timestamp failed: Request too old/new` | Sync device clocks via NTP |
 
-#### 1. Port Already in Use
+### Capture Debug Logs
 
-**Error:**
-```
-❌ Failed to start server: [Errno 48] Address already in use
-```
-
-**Solution:**
-```bash
-# Find process using the port
-lsof -i :8080
-
-# Kill the process (replace PID with actual process ID)
-kill -9 <PID>
-
-# Or use a different port when starting kiosk.py
-# When prompted, enter a different port number (e.g., 8081)
-```
-
-#### 2. Permission Denied
-
-**Error:**
-```
-❌ Failed to start server: [Errno 13] Permission denied
-```
-
-**Solution:**
-- Use a port number > 1024 (privileged ports like 80, 443, 8000-8100 may require admin)
-- On Linux/macOS, prefix with `sudo` if needed (not recommended for security reasons)
-- Choose a port in the range 8080-9999
-
-#### 3. No POS Connection
-
-**Symptom:**
-```
-❌ No POS terminals connected
-```
-
-**Solution:**
-1. Verify POS terminal network settings
-2. Ensure correct IP address and port from kiosk startup message
-3. Check local network connectivity:
-   ```bash
-   ping <kiosk-ip>
-   ```
-4. Verify firewall settings allow traffic on the port
-5. Test port accessibility:
-   ```bash
-   telnet <kiosk-ip> 8080
-   ```
-
-#### 4. Signature Validation Failed
-
-**Error:**
-```
-🔒 Security validation failed: Invalid signature
-```
-
-**Solution:**
-- Verify shared secret key matches on both sides: `POS-KIOSK-SECRET-KEY-2024`
-- Check message format integrity (JSON must be valid)
-- Ensure proper JSON encoding (UTF-8)
-- Verify payload is sorted by keys before signing
-
-#### 5. Invalid JSON Format
-
-**Error:**
-```
-❌ JSON decode error: [error message]
-```
-
-**Solution:**
-- Ensure messages are valid JSON
-- Check for proper quote escaping
-- Verify newline at end of message (`\n`)
-- Use JSON validators to check message format
-
-### Debugging with Logs
-
-**Capture detailed output to a file:**
 ```bash
 python3 kiosk.py 2>&1 | tee kiosk.log
-```
-
-**This creates a `kiosk.log` file with:**
-- 🔗 Connection events
-- 📨 Message exchanges
-- 🔐 Security validations
-- 💳 Payment processing status
-- ❌ Error conditions
-
-**Analyze the log file:**
-```bash
-# View the log
-cat kiosk.log
 
 # Search for errors
 grep "❌" kiosk.log
@@ -505,33 +294,11 @@ grep "❌" kiosk.log
 grep "🔐" kiosk.log
 ```
 
-### Performance Testing
+---
 
-For production environments, consider testing:
+## Example POS Test Client
 
-1. **Multiple concurrent POS connections:**
-   - Start 5-10 simulated POS terminals
-   - Send payment requests from each
-   - Monitor memory usage and response time
-
-2. **High-frequency payment requests:**
-   - Send 100+ payment requests rapidly
-   - Verify all are processed correctly
-   - Check for dropped or duplicate messages
-
-3. **Network interruption handling:**
-   - Simulate POS disconnections
-   - Verify graceful cleanup
-   - Check connection recovery
-
-4. **Memory usage under load:**
-   - Run for extended period with continuous traffic
-   - Monitor nonce storage size
-   - Verify periodic cleanup is working
-
-### Example Python Test Client
-
-For testing purposes, here's a minimal POS client example:
+This minimal Python client simulates a POS terminal. It works for **all deployment scenarios** — just change the `host` parameter:
 
 ```python
 import socket
@@ -541,47 +308,123 @@ import hashlib
 import uuid
 from datetime import datetime
 
-def create_test_response(txn_id):
-    """Create a test acknowledgment response"""
-    secret = "POS-KIOSK-SECRET-KEY-2024"
+# Configuration
+KIOSK_HOST = "127.0.0.1"   # Same device
+# KIOSK_HOST = "192.168.1.100"  # LAN
+# KIOSK_HOST = "pos.merchant.com"  # Internet
+KIOSK_PORT = 8080
+SECRET = "POS-KIOSK-SECRET-KEY-2024"  # Replace in production
 
-    payload = {
-        "type": "ack",
-        "txn_id": txn_id,
-        "status": "processing",
-        "timestamp": str(int(datetime.now().timestamp() * 1000)),
-        "nonce": str(uuid.uuid4())
-    }
-
-    # Create signature
+def sign(payload: dict) -> str:
+    """Create HMAC-SHA256 signature over sorted payload."""
     json_str = json.dumps(payload, sort_keys=True, separators=(',', ':'))
-    signature = hmac.new(
-        secret.encode('utf-8'),
+    return hmac.new(
+        SECRET.encode('utf-8'),
         json_str.encode('utf-8'),
         hashlib.sha256
     ).hexdigest()
 
-    return {
-        "payload": payload,
-        "signature": signature
+def build_message(msg_type: str, txn_id: str, **extra) -> bytes:
+    """Build a signed message with newline frame delimiter."""
+    payload = {
+        "type": msg_type,
+        "txn_id": txn_id,
+        "timestamp": str(int(datetime.now().timestamp() * 1000)),
+        "nonce": str(uuid.uuid4()),
+        **extra
     }
+    message = {"payload": payload, "signature": sign(payload)}
+    return json.dumps(message).encode('utf-8') + b'\n'  # \n is the frame delimiter
 
-# Connect to kiosk
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('192.168.1.100', 8080))
+def simulate_pos():
+    print(f"Connecting to Kiosk at {KIOSK_HOST}:{KIOSK_PORT}...")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((KIOSK_HOST, KIOSK_PORT))
+    reader = sock.makefile('r')
+    print("✅ Connected!")
 
-# Receive payment request
-data = sock.recv(4096)
-request = json.loads(data.decode('utf-8'))
-txn_id = request['payload']['txn_id']
+    while True:
+        print("Waiting for payment request from Kiosk...")
+        raw = reader.readline()  # reads until \n
+        if not raw:
+            print("Connection closed by Kiosk.")
+            break
 
-# Send acknowledgment
-response = create_test_response(txn_id)
-sock.send(json.dumps(response).encode('utf-8') + b'\n')
+        request = json.loads(raw)
+        payload = request.get('payload', {})
+        txn_id = payload.get('txn_id', '')
+        msg_type = payload.get('type', '')
+        print(f"📨 Received: {msg_type} | TXN: {txn_id}")
 
-sock.close()
+        if msg_type == 'transaction_request':
+            payment_mode = payload.get('payment_mode', '')
+            amount = payload.get('amount', 0)
+            print(f"   Amount: RM{amount:.2f}, Mode: {payment_mode}")
+
+            # Step 1: Send ACK
+            ack = build_message("ack", txn_id, status="processing")
+            sock.send(ack)
+            print("   → Sent ACK (processing)")
+
+            if payment_mode == 'ipp':
+                # Step 2a: Send IPP plans for selection
+                result = build_message("transaction_result", txn_id,
+                    status="ipp_plans",
+                    amount=amount,
+                    plans=[{
+                        "planId": "IPP_3M",
+                        "frequency": "Monthly",
+                        "totalInstallments": 3,
+                        "installmentDetails": [
+                            {"installmentNumber": 1, "date": "2024-02-15", "amount": round(amount/3, 2), "installmentFee": 1.50, "installmentFeePercentage": 1.5},
+                            {"installmentNumber": 2, "date": "2024-03-15", "amount": round(amount/3, 2), "installmentFee": 1.50, "installmentFeePercentage": 1.5},
+                            {"installmentNumber": 3, "date": "2024-04-15", "amount": round(amount/3, 2), "installmentFee": 1.50, "installmentFeePercentage": 1.5},
+                        ]
+                    }]
+                )
+                sock.send(result)
+                print("   → Sent IPP plans")
+            else:
+                # Step 2b: Simulate successful payment
+                result = build_message("transaction_result", txn_id,
+                    status="success",
+                    authorization_code="AUTH123",
+                    card_last4="4242"
+                )
+                sock.send(result)
+                print("   → Sent transaction result: success")
+
+        elif msg_type == 'ipp_plan_selection':
+            plan_id = payload.get('plan_id', '')
+            print(f"   Selected plan: {plan_id}")
+            # ACK the plan selection
+            ack = build_message("ack", txn_id, status="processing")
+            sock.send(ack)
+            # Send final success
+            result = build_message("transaction_result", txn_id,
+                status="success",
+                authorization_code="AUTH456",
+                plan_id=plan_id
+            )
+            sock.send(result)
+            print("   → Sent final IPP success")
+
+        elif msg_type == 'cancel_transaction':
+            ack = build_message("ack", txn_id, status="received")
+            sock.send(ack)
+            print("   → Sent cancel ACK")
+
+    sock.close()
+
+if __name__ == "__main__":
+    simulate_pos()
 ```
+
+> **Tip:** To test all three deployment scenarios, only change `KIOSK_HOST`:
+> - Same device: `"127.0.0.1"`
+> - LAN: `"192.168.1.100"` (use the IP shown by kiosk.py on startup)
+> - Internet: your Kiosk's public IP or hostname
 
 ---
 
-**Note:** For API specifications and integration architecture details, refer to `INTEGRATION.md`
+*For API specifications and integration architecture, refer to [INTEGRATION.md](INTEGRATION.md)*
