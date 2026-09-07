@@ -81,6 +81,7 @@ POST /api/merchant/payment/checkout/hosted
 | customerName | string | Yes | Full name of the customer |
 | customerEmail | string | Yes | Customer email address |
 | customerMobile | string | Yes | Customer mobile number (e.g. 0111222333) |
+| nric | string | Conditional | Customer NRIC number. **Mandatory for insurance merchants**, ignored for all other merchant categories |
 | referenceNo | integer | Yes | Your unique order/reference number |
 | amount | number | Yes | Payment amount in MYR (e.g. 100.00) |
 | returnUrl | string | Yes | URL to redirect the customer after payment |
@@ -88,7 +89,11 @@ POST /api/merchant/payment/checkout/hosted
 | details | string | No | Additional information or order description |
 | cart | array | No | Array of purchased item details |
 
+> **Insurance merchants:** If your account is onboarded as an insurance merchant, the `nric` field is **mandatory**. Requests submitted without a valid `nric` will be rejected. If you are unsure of your merchant category, contact [Merchant Support](#additional-support).
+
 #### Example Request
+
+> The `nric` line below is for **insurance merchants only**. Omit it entirely if your account is not an insurance merchant.
 
 ```bash
 curl -X POST "[PAYMENT_URL]/api/merchant/payment/checkout/hosted" \
@@ -99,6 +104,7 @@ curl -X POST "[PAYMENT_URL]/api/merchant/payment/checkout/hosted" \
     "customerName": "customer name",
     "customerEmail": "customer@example.com",
     "customerMobile": "0111222333",
+    "nric": "900101015523",
     "referenceNo": 100,
     "details": "additional information",
     "amount": 100,
