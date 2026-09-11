@@ -3,7 +3,7 @@
 - [About Moby Money](#about-moby-money)
 - [Moby Checkout Sandbox Test](#moby-checkout-sandbox-test)
 - [Direct Integration Guide](#direct-integration-guide)
-- [Recurring Payment Integration Guide](#recurring-integration-guide)
+- [Recurring Billing Guide](#recurring-billing-guide)
 - [POS-KIOSK Integration](#pos-kiosk-integration)
 - [Moby Money Plugins](#moby-money-plugins)
   - [OpenCart](#opencart)
@@ -24,9 +24,9 @@ Moby Money is a leading fintech innovator committed to empowering businesses wit
 
 - [Direct Integration Guide](direct-integration/README.md)
 
-### Recurring Payment Integration Guide
+### Recurring Billing Guide
 
-- [Recurring Payment Integration Guide](recurring-payments/README.md)
+- [Recurring Billing Guide](recurring-billing/README.md)
 
 ### POS-KIOSK Integration
 
